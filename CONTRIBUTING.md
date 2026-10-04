@@ -27,11 +27,20 @@ If your change affects a published package, add a changeset with `pnpm changeset
 
 ## Repo layout
 
-- `packages/core`: scanner, fact base, graphs, workspace store
+Each package has a README listing its files and what they do.
+
+- `packages/core`: fact base schema, scanner, file classification, git, import graph, reading order, risk
+- `packages/langs`: tree-sitter language packs (JS/TS/TSX, Python) and the worker pool
+- `packages/infra`: manifests, framework catalog, CI/CD pipeline parsers, scripts, env vars, Docker
+- `packages/contribute`: onboarding guide
+- `packages/docs`: scan report, Markdown and HTML rendering, static reference pages
 - `packages/cli`: the `grasp` command
+- `fixtures/`: small sample repos used by golden tests (`js-app`, `py-app`, `malformed`)
 - `docs/research.md`: findings about external conventions Grasp depends on
 
-More packages arrive phase by phase; see the project plan.
+Golden files live in `__golden__/` next to the tests. When a change is intended, update them with `npx vitest run -u` and review the diff before committing.
+
+Try your change on a real repo: `pnpm build && node packages/cli/dist/bin.js scan /path/to/repo`.
 
 ## Conventions
 

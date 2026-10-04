@@ -31,7 +31,7 @@ export const DEFAULT_CONFIG: GraspConfig = {
   risk: {
     weights: { centrality: 0.4, churn: 0.3, sensitive: 0.2, size: 0.1 },
     sensitivePatterns: [
-      "auth",
+      "auth(?!or)",
       "login",
       "passw",
       "token",

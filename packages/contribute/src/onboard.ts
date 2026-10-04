@@ -125,11 +125,12 @@ const LICENSES: [RegExp, string][] = [
   [/GNU LESSER GENERAL PUBLIC LICENSE/i, "LGPL"],
   [/GNU AFFERO GENERAL PUBLIC LICENSE/i, "AGPL-3.0"],
   [/Mozilla Public License,? v(ersion)?\.? ?2\.0/i, "MPL-2.0"],
+  // The BSD texts are often not titled; the third clause ("Neither the name...") tells 3 from 2.
   [
-    /BSD 3-Clause|Redistributions of source code must retain.*\n?.*Neither the name/i,
+    /BSD 3-Clause|Redistribution and use in source and binary forms[\s\S]*Neither the name/i,
     "BSD-3-Clause",
   ],
-  [/BSD 2-Clause/i, "BSD-2-Clause"],
+  [/BSD 2-Clause|Redistribution and use in source and binary forms/i, "BSD-2-Clause"],
   [/ISC License/i, "ISC"],
   [/This is free and unencumbered software released into the public domain/i, "Unlicense"],
 ];
@@ -231,7 +232,10 @@ export async function buildOnboarding(repo: RepoView, infra: InfraReport): Promi
         title,
         commands: tools.map((q) => TOOL_COMMAND[q.name] ?? ""),
         why: `No ${kind} script is defined; these are the standard commands for the configured tools.`,
-        sources: tools.flatMap((q) => q.configFiles.map((path) => ({ path, line: 1 }))),
+        sources: [...new Set(tools.flatMap((q) => q.configFiles))].map((path) => ({
+          path,
+          line: 1,
+        })),
       });
     }
   };

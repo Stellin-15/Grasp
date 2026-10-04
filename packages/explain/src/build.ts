@@ -106,7 +106,13 @@ const MAX_SYMBOL_LINES = 1500;
 const MAX_FILE_SOURCE_LINES = 800;
 /** Classes longer than this are shown as header plus member signatures. */
 const ABRIDGE_CLASS_LINES = 150;
-const OUTPUT_TOKENS: Record<UnitKind, number> = { symbol: 900, file: 500, folder: 300, repo: 900 };
+// Calibrated on real Claude Code runs: thorough answers plus thinking run long.
+const OUTPUT_TOKENS: Record<UnitKind, number> = {
+  symbol: 2500,
+  file: 1200,
+  folder: 600,
+  repo: 2000,
+};
 
 function dirOf(path: string): string {
   const i = path.lastIndexOf("/");

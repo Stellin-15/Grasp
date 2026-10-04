@@ -16,8 +16,8 @@ export function estimateUsd(
   outputTokens: number,
 ): { usd: number; basis: string } {
   const hit = PRICES.find(([re]) => re.test(model));
-  // Unknown or "default" model: Sonnet rates as a middle estimate.
-  const [, inp, out] = hit ?? [/sonnet/, 2, 10];
-  const label = hit ? model : "Sonnet rates (your Claude Code default model may differ)";
+  // Unknown or "default" model: Opus rates, since Claude Code usually runs Opus by default.
+  const [, inp, out] = hit ?? [/opus/, 4, 20];
+  const label = hit ? model : "Opus rates; your Claude Code default model may differ";
   return { usd: (inputTokens * inp + outputTokens * out) / 1_000_000, basis: label };
 }

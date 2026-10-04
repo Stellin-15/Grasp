@@ -40,7 +40,7 @@ Scored from import centrality, git churn, sensitive paths or names, and size. Sc
 
 | File | Score | Why |
 | --- | --- | --- |
-| `src/auth/token.ts` | 0.48 | sensitive path (matches "auth"); large (30 lines) |
+| `src/auth/token.ts` | 0.48 | sensitive path ("auth"); large (30 lines) |
 | `src/utils/math.ts` | 0.48 | central in the import graph; large (16 lines) |
 | `src/config.ts` | 0.33 | central in the import graph; large (17 lines) |
 | `src/server.ts` | 0.29 | large (30 lines) |

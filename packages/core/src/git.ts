@@ -142,7 +142,7 @@ export function parseBlame(out: string): (BlameLine | undefined)[] {
     }
     const header = /^([0-9a-f]{40}) \d+ (\d+)/.exec(row);
     if (header) {
-      current.hash = header[1];
+      current.hash = header[1] ?? "";
       current.line = Number(header[2]);
     } else if (row.startsWith("author ")) current.author = row.slice(7);
     else if (row.startsWith("author-time ")) {

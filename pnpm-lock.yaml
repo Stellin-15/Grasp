@@ -101,6 +101,10 @@ importers:
       yaml:
         specifier: 2.9.1
         version: 2.9.1
+    devDependencies:
+      '@grasp/langs':
+        specifier: workspace:*
+        version: link:../langs
 
   packages/langs:
     dependencies:

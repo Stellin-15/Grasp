@@ -1,0 +1,741 @@
+{
+  "stack": {
+    "runtimes": [
+      {
+        "name": "Node.js",
+        "version": "22",
+        "source": {
+          "path": ".nvmrc",
+          "line": 1
+        }
+      },
+      {
+        "name": "Node.js",
+        "version": ">=20",
+        "source": {
+          "path": "package.json",
+          "line": 11
+        }
+      }
+    ],
+    "packageManagers": [
+      {
+        "name": "pnpm",
+        "evidence": "package.json packageManager pnpm@9.15.0",
+        "install": "corepack enable && pnpm install"
+      }
+    ],
+    "dependencies": [
+      {
+        "ecosystem": "npm",
+        "name": "express",
+        "declared": "^4.19.2",
+        "scope": "runtime",
+        "manifest": {
+          "path": "package.json",
+          "line": 23
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "jsonwebtoken",
+        "declared": "^9.0.2",
+        "scope": "runtime",
+        "manifest": {
+          "path": "package.json",
+          "line": 24
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "react",
+        "declared": "^18.3.1",
+        "scope": "runtime",
+        "manifest": {
+          "path": "package.json",
+          "line": 25
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "zod",
+        "declared": "^3.23.8",
+        "scope": "runtime",
+        "manifest": {
+          "path": "package.json",
+          "line": 26
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "@types/express",
+        "declared": "^4.17.21",
+        "scope": "dev",
+        "manifest": {
+          "path": "package.json",
+          "line": 29
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "eslint",
+        "declared": "^9.5.0",
+        "scope": "dev",
+        "manifest": {
+          "path": "package.json",
+          "line": 30
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "prettier",
+        "declared": "^3.3.2",
+        "scope": "dev",
+        "manifest": {
+          "path": "package.json",
+          "line": 31
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "tsx",
+        "declared": "^4.15.7",
+        "scope": "dev",
+        "manifest": {
+          "path": "package.json",
+          "line": 32
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "typescript",
+        "declared": "^5.5.2",
+        "scope": "dev",
+        "manifest": {
+          "path": "package.json",
+          "line": 33
+        }
+      },
+      {
+        "ecosystem": "npm",
+        "name": "vitest",
+        "declared": "^1.6.0",
+        "scope": "dev",
+        "manifest": {
+          "path": "package.json",
+          "line": 34
+        }
+      }
+    ],
+    "frameworks": [
+      {
+        "id": "express",
+        "name": "Express",
+        "category": "Web server framework",
+        "brief": "A minimal Node.js HTTP framework. You register middleware and route handlers (`app.get(path, handler)`); each request flows through the middleware chain until a handler sends a response.",
+        "docs": "https://expressjs.com",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "express",
+            "declared": "^4.19.2",
+            "scope": "runtime",
+            "manifest": {
+              "path": "package.json",
+              "line": 23
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "src/server.ts",
+            "line": 1
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "jsonwebtoken",
+        "name": "jsonwebtoken",
+        "category": "Auth",
+        "brief": "Signs and verifies JSON Web Tokens (JWTs), compact signed tokens commonly used for sessions and API auth.",
+        "docs": "https://github.com/auth0/node-jsonwebtoken#readme",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "jsonwebtoken",
+            "declared": "^9.0.2",
+            "scope": "runtime",
+            "manifest": {
+              "path": "package.json",
+              "line": 24
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "src/auth/token.ts",
+            "line": 1
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "react",
+        "name": "React",
+        "category": "UI library",
+        "brief": "A library for building user interfaces from components: functions that take props and return markup (JSX). React re-renders a component when its state or props change and updates only the parts of the page that differ.",
+        "docs": "https://react.dev",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "react",
+            "declared": "^18.3.1",
+            "scope": "runtime",
+            "manifest": {
+              "path": "package.json",
+              "line": 25
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "src/components/Button.tsx",
+            "line": 1
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "vitest",
+        "name": "Vitest",
+        "category": "Test runner",
+        "brief": "A Vite-powered test runner with a Jest-compatible API (`describe`, `it`, `expect`).",
+        "docs": "https://vitest.dev/guide/",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "vitest",
+            "declared": "^1.6.0",
+            "scope": "dev",
+            "manifest": {
+              "path": "package.json",
+              "line": 34
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "tests/math.test.ts",
+            "line": 1
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "zod",
+        "name": "Zod",
+        "category": "Validation",
+        "brief": "Declares data schemas in TypeScript and validates unknown input against them at runtime (`schema.parse(data)`), inferring static types from the same schema.",
+        "docs": "https://zod.dev",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "zod",
+            "declared": "^3.23.8",
+            "scope": "runtime",
+            "manifest": {
+              "path": "package.json",
+              "line": 26
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "src/config.ts",
+            "line": 1
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "eslint",
+        "name": "ESLint",
+        "category": "Linter",
+        "brief": "Finds problems in JavaScript and TypeScript code using configurable rules.",
+        "docs": "https://eslint.org/docs/latest/",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "eslint",
+            "declared": "^9.5.0",
+            "scope": "dev",
+            "manifest": {
+              "path": "package.json",
+              "line": 30
+            }
+          }
+        ],
+        "usedIn": [],
+        "configFiles": [
+          "eslint.config.js"
+        ]
+      },
+      {
+        "id": "prettier",
+        "name": "Prettier",
+        "category": "Formatter",
+        "brief": "Reformats code to a consistent style so formatting is never debated in review.",
+        "docs": "https://prettier.io/docs/",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "prettier",
+            "declared": "^3.3.2",
+            "scope": "dev",
+            "manifest": {
+              "path": "package.json",
+              "line": 31
+            }
+          }
+        ],
+        "usedIn": [],
+        "configFiles": []
+      },
+      {
+        "id": "typescript",
+        "name": "TypeScript",
+        "category": "Language / type checker",
+        "brief": "Adds static types to JavaScript. `tsc` type-checks the code and can compile it to JavaScript; `tsconfig.json` controls both.",
+        "docs": "https://www.typescriptlang.org/docs/",
+        "packages": [
+          {
+            "ecosystem": "npm",
+            "name": "typescript",
+            "declared": "^5.5.2",
+            "scope": "dev",
+            "manifest": {
+              "path": "package.json",
+              "line": 33
+            }
+          }
+        ],
+        "usedIn": [],
+        "configFiles": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "warnings": []
+  },
+  "pipelines": [
+    {
+      "system": "github-actions",
+      "path": ".github/workflows/ci.yml",
+      "name": "CI",
+      "parsed": true,
+      "triggers": [
+        {
+          "event": "push",
+          "detail": "branches: main",
+          "line": 4
+        },
+        {
+          "event": "pull_request",
+          "detail": "paths-ignore: docs/**",
+          "line": 6
+        }
+      ],
+      "runsOnPullRequests": true,
+      "jobs": [
+        {
+          "id": "lint",
+          "runsOn": "ubuntu-latest",
+          "needs": [],
+          "services": [],
+          "steps": [
+            {
+              "uses": "actions/checkout@v4",
+              "usesBrief": "Checks out the repository so later steps can use the code.",
+              "line": 16
+            },
+            {
+              "uses": "pnpm/action-setup@v4",
+              "usesBrief": "Installs pnpm (version read from package.json packageManager by default).",
+              "line": 17
+            },
+            {
+              "uses": "actions/setup-node@v4",
+              "usesBrief": "Installs a Node.js version, optionally with dependency caching.",
+              "line": 18
+            },
+            {
+              "run": "pnpm install --frozen-lockfile",
+              "line": 22
+            },
+            {
+              "name": "Lint",
+              "run": "pnpm lint",
+              "line": 23
+            }
+          ],
+          "line": 13
+        },
+        {
+          "id": "test",
+          "runsOn": "${{ matrix.os }}",
+          "needs": [
+            "lint"
+          ],
+          "matrix": {
+            "os": [
+              "ubuntu-latest",
+              "windows-latest"
+            ],
+            "node": [
+              "20",
+              "22"
+            ]
+          },
+          "services": [
+            "redis"
+          ],
+          "steps": [
+            {
+              "uses": "actions/checkout@v4",
+              "usesBrief": "Checks out the repository so later steps can use the code.",
+              "line": 37
+            },
+            {
+              "uses": "actions/setup-node@v4",
+              "usesBrief": "Installs a Node.js version, optionally with dependency caching.",
+              "line": 38
+            },
+            {
+              "run": "pnpm install --frozen-lockfile",
+              "line": 41
+            },
+            {
+              "name": "Unit tests",
+              "run": "pnpm test",
+              "line": 42
+            },
+            {
+              "uses": "actions/upload-artifact@v4",
+              "usesBrief": "Uploads files produced by the job so they can be downloaded or used by other jobs.",
+              "line": 46
+            }
+          ],
+          "line": 26
+        }
+      ],
+      "secrets": [
+        "TEST_JWT_SECRET"
+      ],
+      "purposes": [
+        "lint",
+        "tests"
+      ],
+      "brief": "Runs lint and tests on pushes to main and pull requests, across os ubuntu-latest and windows-latest × node 20 and 22.",
+      "deploys": []
+    },
+    {
+      "system": "github-actions",
+      "path": ".github/workflows/release.yml",
+      "name": "Release",
+      "parsed": true,
+      "triggers": [
+        {
+          "event": "push",
+          "detail": "tags: v*",
+          "line": 4
+        },
+        {
+          "event": "workflow_dispatch",
+          "line": 6
+        }
+      ],
+      "runsOnPullRequests": false,
+      "jobs": [
+        {
+          "id": "publish",
+          "runsOn": "ubuntu-latest",
+          "needs": [],
+          "services": [],
+          "environment": "production",
+          "steps": [
+            {
+              "uses": "actions/checkout@v4",
+              "usesBrief": "Checks out the repository so later steps can use the code.",
+              "line": 16
+            },
+            {
+              "uses": "actions/setup-node@v4",
+              "usesBrief": "Installs a Node.js version, optionally with dependency caching.",
+              "line": 17
+            },
+            {
+              "run": "pnpm install --frozen-lockfile",
+              "line": 21
+            },
+            {
+              "run": "pnpm build",
+              "line": 22
+            },
+            {
+              "run": "npm publish --provenance",
+              "line": 23
+            },
+            {
+              "uses": "docker/build-push-action@v6",
+              "usesBrief": "Builds a Docker image and optionally pushes it to a registry.",
+              "line": 26
+            }
+          ],
+          "line": 9
+        }
+      ],
+      "secrets": [
+        "NPM_TOKEN"
+      ],
+      "purposes": [
+        "build",
+        "release",
+        "deploy"
+      ],
+      "brief": "Runs build, release and deploy on tags matching v* and manual runs. Publishes or deploys to npm registry and container registry.",
+      "deploys": [
+        {
+          "target": "npm registry",
+          "evidence": "npm publish --provenance",
+          "line": 23
+        },
+        {
+          "target": "container registry",
+          "evidence": "docker/build-push-action@v6",
+          "line": 26
+        }
+      ]
+    }
+  ],
+  "build": {
+    "scripts": [
+      {
+        "source": "make",
+        "name": "setup",
+        "command": "pnpm install",
+        "description": "Install dependencies",
+        "kind": "setup",
+        "at": {
+          "path": "Makefile",
+          "line": 4
+        }
+      },
+      {
+        "source": "make",
+        "name": "test",
+        "command": "pnpm test",
+        "description": "Run the test suite",
+        "kind": "test",
+        "at": {
+          "path": "Makefile",
+          "line": 8
+        }
+      },
+      {
+        "source": "make",
+        "name": "docker",
+        "command": "docker compose up --build",
+        "kind": "other",
+        "at": {
+          "path": "Makefile",
+          "line": 11
+        }
+      },
+      {
+        "source": "npm",
+        "name": "dev",
+        "command": "tsx watch src/index.ts",
+        "kind": "dev",
+        "at": {
+          "path": "package.json",
+          "line": 15
+        }
+      },
+      {
+        "source": "npm",
+        "name": "build",
+        "command": "tsc -p .",
+        "kind": "build",
+        "at": {
+          "path": "package.json",
+          "line": 16
+        }
+      },
+      {
+        "source": "npm",
+        "name": "start",
+        "command": "node dist/index.js",
+        "kind": "start",
+        "at": {
+          "path": "package.json",
+          "line": 17
+        }
+      },
+      {
+        "source": "npm",
+        "name": "test",
+        "command": "vitest run",
+        "kind": "test",
+        "at": {
+          "path": "package.json",
+          "line": 18
+        }
+      },
+      {
+        "source": "npm",
+        "name": "lint",
+        "command": "eslint .",
+        "kind": "lint",
+        "at": {
+          "path": "package.json",
+          "line": 19
+        }
+      },
+      {
+        "source": "npm",
+        "name": "format",
+        "command": "prettier --write .",
+        "kind": "format",
+        "at": {
+          "path": "package.json",
+          "line": 20
+        }
+      }
+    ],
+    "env": [
+      {
+        "name": "JWT_SECRET",
+        "sources": [
+          {
+            "path": ".env.example",
+            "line": 4,
+            "kind": "template"
+          },
+          {
+            "path": "src/auth/token.ts",
+            "line": 29,
+            "kind": "code"
+          }
+        ],
+        "description": "At least 16 characters; used to sign session tokens"
+      },
+      {
+        "name": "PORT",
+        "sources": [
+          {
+            "path": ".env.example",
+            "line": 2,
+            "kind": "template"
+          }
+        ],
+        "description": "Port the HTTP server listens on"
+      }
+    ],
+    "docker": [
+      {
+        "path": "Dockerfile",
+        "stages": [
+          {
+            "from": "node:22-alpine",
+            "name": "build",
+            "line": 1
+          },
+          {
+            "from": "node:22-alpine",
+            "line": 6
+          }
+        ],
+        "exposes": [
+          "3000"
+        ],
+        "command": "node dist/index.js"
+      }
+    ],
+    "compose": [
+      {
+        "name": "app",
+        "build": ".",
+        "ports": [
+          "3000:3000"
+        ],
+        "dependsOn": [
+          "redis"
+        ],
+        "at": {
+          "path": "docker-compose.yml",
+          "line": 2
+        }
+      },
+      {
+        "name": "redis",
+        "image": "redis:7",
+        "ports": [],
+        "dependsOn": [],
+        "at": {
+          "path": "docker-compose.yml",
+          "line": 9
+        }
+      }
+    ],
+    "infrastructure": [],
+    "quality": [
+      {
+        "name": "ESLint",
+        "category": "linter",
+        "configFiles": [
+          "eslint.config.js"
+        ],
+        "brief": "Lints JavaScript and TypeScript."
+      },
+      {
+        "name": "Prettier",
+        "category": "formatter",
+        "configFiles": [],
+        "brief": "Formats code consistently."
+      },
+      {
+        "name": "TypeScript",
+        "category": "type checker",
+        "configFiles": [
+          "tsconfig.json"
+        ],
+        "brief": "Type checks TypeScript (and JS with checkJs)."
+      },
+      {
+        "name": "Vitest",
+        "category": "test runner",
+        "configFiles": [],
+        "brief": "Runs JS/TS tests."
+      }
+    ],
+    "entryPoints": [
+      {
+        "path": "src/index.ts",
+        "reason": "CLI command `js-app` (package.json bin)",
+        "at": {
+          "path": "package.json",
+          "line": 7
+        }
+      },
+      {
+        "path": "src/index.ts",
+        "reason": "package entry (package.json main)",
+        "at": {
+          "path": "package.json",
+          "line": 6
+        }
+      }
+    ]
+  }
+}

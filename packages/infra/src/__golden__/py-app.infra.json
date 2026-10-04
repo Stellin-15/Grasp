@@ -1,0 +1,559 @@
+{
+  "stack": {
+    "runtimes": [
+      {
+        "name": "Python",
+        "version": "3.12",
+        "source": {
+          "path": ".python-version",
+          "line": 1
+        }
+      },
+      {
+        "name": "Python",
+        "version": ">=3.11",
+        "source": {
+          "path": "pyproject.toml",
+          "line": 5
+        }
+      }
+    ],
+    "packageManagers": [
+      {
+        "name": "pip",
+        "evidence": "requirements.txt",
+        "install": "pip install -r requirements.txt"
+      }
+    ],
+    "dependencies": [
+      {
+        "ecosystem": "pypi",
+        "name": "fastapi",
+        "declared": ">=0.111",
+        "scope": "runtime",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 4
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "SQLAlchemy",
+        "declared": "~=2.0",
+        "scope": "runtime",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 8
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "pydantic",
+        "declared": ">=2.7",
+        "scope": "runtime",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 9
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "PyYAML",
+        "scope": "runtime",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 10
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "pytest",
+        "declared": ">=8",
+        "scope": "dev",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 14
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "ruff",
+        "scope": "dev",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 14
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "mypy",
+        "scope": "dev",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 14
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "hatchling",
+        "scope": "build",
+        "manifest": {
+          "path": "pyproject.toml",
+          "line": 20
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "fastapi",
+        "declared": "==0.111.0",
+        "scope": "runtime",
+        "manifest": {
+          "path": "requirements.txt",
+          "line": 2
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "SQLAlchemy",
+        "declared": "==2.0.30",
+        "scope": "runtime",
+        "manifest": {
+          "path": "requirements.txt",
+          "line": 3
+        }
+      },
+      {
+        "ecosystem": "pypi",
+        "name": "uvicorn",
+        "declared": "==0.30.1",
+        "scope": "runtime",
+        "manifest": {
+          "path": "requirements.txt",
+          "line": 4
+        }
+      }
+    ],
+    "frameworks": [
+      {
+        "id": "fastapi",
+        "name": "FastAPI",
+        "category": "Web framework",
+        "brief": "A Python web framework for APIs. Route functions are decorated with `@app.get(...)`; type hints on parameters drive request validation (via Pydantic) and generate OpenAPI docs.",
+        "docs": "https://fastapi.tiangolo.com",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "fastapi",
+            "declared": ">=0.111",
+            "scope": "runtime",
+            "manifest": {
+              "path": "pyproject.toml",
+              "line": 4
+            }
+          },
+          {
+            "ecosystem": "pypi",
+            "name": "fastapi",
+            "declared": "==0.111.0",
+            "scope": "runtime",
+            "manifest": {
+              "path": "requirements.txt",
+              "line": 2
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "src/shop/main.py",
+            "line": 4
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "pytest",
+        "name": "pytest",
+        "category": "Test runner",
+        "brief": "The standard Python test runner: tests are plain functions using `assert`, with fixtures for setup and `conftest.py` for shared fixtures.",
+        "docs": "https://docs.pytest.org",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "pytest",
+            "declared": ">=8",
+            "scope": "dev",
+            "manifest": {
+              "path": "pyproject.toml",
+              "line": 14
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "tests/test_billing.py",
+            "line": 1
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "sqlalchemy",
+        "name": "SQLAlchemy",
+        "category": "ORM / database",
+        "brief": "The standard Python SQL toolkit and ORM. Tables are mapped to Python classes (declarative models), and queries are built in Python and executed through a session.",
+        "docs": "https://docs.sqlalchemy.org",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "SQLAlchemy",
+            "declared": "~=2.0",
+            "scope": "runtime",
+            "manifest": {
+              "path": "pyproject.toml",
+              "line": 8
+            }
+          },
+          {
+            "ecosystem": "pypi",
+            "name": "SQLAlchemy",
+            "declared": "==2.0.30",
+            "scope": "runtime",
+            "manifest": {
+              "path": "requirements.txt",
+              "line": 3
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "src/shop/models.py",
+            "line": 4
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "uvicorn",
+        "name": "Uvicorn",
+        "category": "ASGI server",
+        "brief": "Runs async Python web apps (ASGI apps such as FastAPI or Starlette) as an HTTP server.",
+        "docs": "https://www.uvicorn.org",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "uvicorn",
+            "declared": "==0.30.1",
+            "scope": "runtime",
+            "manifest": {
+              "path": "requirements.txt",
+              "line": 4
+            }
+          }
+        ],
+        "usedIn": [
+          {
+            "path": "src/shop/main.py",
+            "line": 3
+          }
+        ],
+        "configFiles": []
+      },
+      {
+        "id": "mypy",
+        "name": "mypy",
+        "category": "Type checker",
+        "brief": "Checks Python type hints statically and reports type errors without running the code.",
+        "docs": "https://mypy.readthedocs.io",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "mypy",
+            "scope": "dev",
+            "manifest": {
+              "path": "pyproject.toml",
+              "line": 14
+            }
+          }
+        ],
+        "usedIn": [],
+        "configFiles": []
+      },
+      {
+        "id": "pydantic",
+        "name": "Pydantic",
+        "category": "Validation",
+        "brief": "Defines data models as Python classes with type hints and validates and converts input data against them.",
+        "docs": "https://docs.pydantic.dev",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "pydantic",
+            "declared": ">=2.7",
+            "scope": "runtime",
+            "manifest": {
+              "path": "pyproject.toml",
+              "line": 9
+            }
+          }
+        ],
+        "usedIn": [],
+        "configFiles": []
+      },
+      {
+        "id": "pyyaml",
+        "name": "PyYAML",
+        "category": "Serialization",
+        "brief": "Reads and writes YAML in Python.",
+        "docs": "https://pyyaml.org/wiki/PyYAMLDocumentation",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "PyYAML",
+            "scope": "runtime",
+            "manifest": {
+              "path": "pyproject.toml",
+              "line": 10
+            }
+          }
+        ],
+        "usedIn": [],
+        "configFiles": []
+      },
+      {
+        "id": "ruff",
+        "name": "Ruff",
+        "category": "Linter and formatter",
+        "brief": "A very fast Python linter and formatter that replaces Flake8, isort, and Black for most projects.",
+        "docs": "https://docs.astral.sh/ruff/",
+        "packages": [
+          {
+            "ecosystem": "pypi",
+            "name": "ruff",
+            "scope": "dev",
+            "manifest": {
+              "path": "pyproject.toml",
+              "line": 14
+            }
+          }
+        ],
+        "usedIn": [],
+        "configFiles": []
+      }
+    ],
+    "warnings": []
+  },
+  "pipelines": [
+    {
+      "system": "gitlab-ci",
+      "path": ".gitlab-ci.yml",
+      "name": "GitLab CI",
+      "parsed": true,
+      "triggers": [
+        {
+          "event": "push",
+          "detail": "every branch unless rules or workflow limit it"
+        },
+        {
+          "event": "merge_request"
+        },
+        {
+          "event": "tag"
+        }
+      ],
+      "runsOnPullRequests": true,
+      "jobs": [
+        {
+          "id": "ruff",
+          "runsOn": "python:3.12",
+          "stage": "lint",
+          "needs": [],
+          "services": [],
+          "steps": [
+            {
+              "run": "pip install ruff",
+              "line": 15
+            },
+            {
+              "run": "ruff check .",
+              "line": 16
+            }
+          ],
+          "line": 12
+        },
+        {
+          "id": "pytest",
+          "runsOn": "python:3.12",
+          "stage": "test",
+          "needs": [
+            "ruff"
+          ],
+          "condition": "$CI_PIPELINE_SOURCE == \"merge_request_event\" | $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH",
+          "services": [],
+          "steps": [
+            {
+              "run": "pip install -e \".[dev]\"",
+              "line": 22
+            },
+            {
+              "run": "pytest",
+              "line": 23
+            }
+          ],
+          "line": 18
+        },
+        {
+          "id": "deploy",
+          "runsOn": "alpine",
+          "stage": "deploy",
+          "needs": [],
+          "environment": "production",
+          "condition": "only: tags",
+          "services": [],
+          "steps": [
+            {
+              "run": "./deploy.sh \"$DEPLOY_TOKEN\"",
+              "line": 32
+            }
+          ],
+          "line": 28
+        }
+      ],
+      "secrets": [
+        "DEPLOY_TOKEN"
+      ],
+      "purposes": [
+        "lint",
+        "tests",
+        "deploy"
+      ],
+      "brief": "Runs lint, tests and deploy on pushes, merge requests and tags. Publishes or deploys to custom deploy script.",
+      "deploys": [
+        {
+          "target": "custom deploy script",
+          "evidence": "./deploy.sh \"$DEPLOY_TOKEN\"",
+          "line": 32
+        }
+      ]
+    },
+    {
+      "system": "pre-commit",
+      "path": ".pre-commit-config.yaml",
+      "name": "pre-commit hooks",
+      "parsed": true,
+      "triggers": [
+        {
+          "event": "git commit",
+          "detail": "after `pre-commit install`; also runnable in CI"
+        }
+      ],
+      "runsOnPullRequests": false,
+      "jobs": [
+        {
+          "id": "hooks",
+          "needs": [],
+          "steps": [
+            {
+              "name": "ruff",
+              "uses": "https://github.com/astral-sh/ruff-pre-commit@v0.4.10",
+              "run": "pre-commit run ruff --all-files",
+              "line": 5
+            },
+            {
+              "name": "ruff-format",
+              "uses": "https://github.com/astral-sh/ruff-pre-commit@v0.4.10",
+              "run": "pre-commit run ruff-format --all-files",
+              "line": 6
+            },
+            {
+              "name": "mypy",
+              "uses": "https://github.com/pre-commit/mirrors-mypy@v1.10.0",
+              "run": "pre-commit run mypy --all-files",
+              "line": 10
+            }
+          ],
+          "line": 1
+        }
+      ],
+      "secrets": [],
+      "purposes": [
+        "type check"
+      ],
+      "brief": "Runs 3 hooks (ruff, ruff-format and mypy) before each commit.",
+      "deploys": []
+    }
+  ],
+  "build": {
+    "scripts": [
+      {
+        "source": "python-entry",
+        "name": "shop",
+        "command": "shop",
+        "description": "Console command that calls shop.main:run",
+        "kind": "start",
+        "at": {
+          "path": "pyproject.toml",
+          "line": 17
+        }
+      }
+    ],
+    "env": [
+      {
+        "name": "PORT",
+        "sources": [
+          {
+            "path": "src/shop/main.py",
+            "line": 20,
+            "kind": "code"
+          }
+        ]
+      }
+    ],
+    "docker": [],
+    "compose": [],
+    "infrastructure": [],
+    "quality": [
+      {
+        "name": "Ruff",
+        "category": "linter",
+        "configFiles": [
+          "pyproject.toml"
+        ],
+        "brief": "Lints and formats Python."
+      },
+      {
+        "name": "mypy",
+        "category": "type checker",
+        "configFiles": [
+          "pyproject.toml"
+        ],
+        "brief": "Type checks Python."
+      },
+      {
+        "name": "pytest",
+        "category": "test runner",
+        "configFiles": [
+          "pyproject.toml"
+        ],
+        "brief": "Runs Python tests."
+      },
+      {
+        "name": "pre-commit",
+        "category": "git hooks",
+        "configFiles": [
+          ".pre-commit-config.yaml"
+        ],
+        "brief": "Runs checks automatically before each commit."
+      }
+    ],
+    "entryPoints": [
+      {
+        "path": "src/shop/main.py",
+        "reason": "console command `shop` (pyproject scripts)",
+        "at": {
+          "path": "pyproject.toml",
+          "line": 17
+        }
+      }
+    ]
+  }
+}

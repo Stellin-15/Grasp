@@ -24,4 +24,17 @@ Findings about external conventions Grasp depends on. Check the date; these move
 - **Determinism:** files finish in arbitrary order under concurrency, so facts are sorted before linking. Python `from pkg import mod` creates both a name binding and a submodule binding; the submodule wins explicitly.
 - **YAML 1.2:** the `yaml` package parses GitHub Actions' `on:` key as a string (YAML 1.1 parsers turn it into `true`).
 - **Mermaid** diagrams in HTML output load `mermaid@11` from jsdelivr in the viewer's browser. Grasp itself makes no network calls; offline, the diagram source stays readable.
+- **npm name decided:** publish the CLI as `grasp-cli` (bin `grasp`). Internal packages stay `@grasp/*`.
+
+## 2026-10-04: Claude Code as the LLM backend (Phase 2)
+
+Checked against Claude Code 2.1.288 (`claude --help` plus one live call).
+
+- Non-interactive call: `claude -p --output-format json --tools "" --no-session-persistence --model <alias> --system-prompt "<ours>" --json-schema '<schema>'`, prompt on stdin.
+- `--tools ""` disables every built-in tool, so the model only sees what Grasp sends and cannot read or change files.
+- The JSON result has `structured_output` (the schema-validated object), `result` (text), `is_error`, `total_cost_usd`, `usage`, and `modelUsage`.
+- Default system prompt overhead was about 9.7k input tokens per call; `--system-prompt` (replace) cut it to about 3.6k and the cost about 4x. Always replace it.
+- `--max-budget-usd` exists for a hard per-call spend cap.
+- Model aliases accepted: `fable`, `opus`, `sonnet`, `haiku`.
+
 - **Open question for Phase 2:** per-symbol history uses `git blame` (oldest surviving line). `git log -L` is exact but too slow for whole-repo docs; consider it for single-symbol `grasp show`.

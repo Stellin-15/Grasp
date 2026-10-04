@@ -1,0 +1,140 @@
+{
+  "steps": [
+    {
+      "title": "Install the language runtime",
+      "commands": [
+        "# Python 3.12"
+      ],
+      "why": "Use the pinned version to match CI and other contributors.",
+      "sources": [
+        {
+          "path": ".python-version",
+          "line": 1
+        },
+        {
+          "path": "pyproject.toml",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "title": "Install dependencies",
+      "commands": [
+        "pip install -r requirements.txt"
+      ],
+      "sources": [],
+      "why": "Detected from requirements.txt."
+    },
+    {
+      "title": "Configure environment variables",
+      "commands": [],
+      "why": "The code reads 1 variable: PORT.",
+      "sources": [
+        {
+          "path": "src/shop/main.py",
+          "line": 20,
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "title": "Run it",
+      "commands": [
+        "shop"
+      ],
+      "why": "Console command that calls shop.main:run",
+      "sources": [
+        {
+          "path": "pyproject.toml",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "title": "Run the tests",
+      "commands": [
+        "pytest"
+      ],
+      "why": "No test script is defined; these are the standard commands for the configured tools.",
+      "sources": [
+        {
+          "path": "pyproject.toml",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "title": "Lint and type check",
+      "commands": [
+        "ruff check .",
+        "mypy ."
+      ],
+      "why": "No lint script is defined; these are the standard commands for the configured tools.",
+      "sources": [
+        {
+          "path": "pyproject.toml",
+          "line": 1
+        },
+        {
+          "path": "pyproject.toml",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "title": "Install git hooks",
+      "commands": [
+        "pre-commit install"
+      ],
+      "why": "Runs 3 hooks (ruff, ruff-format and mypy) before each commit.",
+      "sources": [
+        {
+          "path": ".pre-commit-config.yaml",
+          "line": 1
+        }
+      ]
+    }
+  ],
+  "prChecks": [
+    {
+      "pipeline": ".gitlab-ci.yml",
+      "job": "ruff",
+      "command": "pip install ruff",
+      "at": {
+        "path": ".gitlab-ci.yml",
+        "line": 15
+      }
+    },
+    {
+      "pipeline": ".gitlab-ci.yml",
+      "job": "ruff",
+      "command": "ruff check .",
+      "at": {
+        "path": ".gitlab-ci.yml",
+        "line": 16
+      }
+    },
+    {
+      "pipeline": ".gitlab-ci.yml",
+      "job": "pytest",
+      "command": "pip install -e \".[dev]\"",
+      "at": {
+        "path": ".gitlab-ci.yml",
+        "line": 22
+      }
+    },
+    {
+      "pipeline": ".gitlab-ci.yml",
+      "job": "pytest",
+      "command": "pytest",
+      "at": {
+        "path": ".gitlab-ci.yml",
+        "line": 23
+      }
+    }
+  ],
+  "contributing": {
+    "sections": [],
+    "issueTemplates": []
+  }
+}

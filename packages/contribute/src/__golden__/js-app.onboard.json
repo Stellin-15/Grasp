@@ -1,0 +1,182 @@
+{
+  "steps": [
+    {
+      "title": "Install the language runtime",
+      "commands": [
+        "# Node.js 22"
+      ],
+      "why": "Use the pinned version to match CI and other contributors.",
+      "sources": [
+        {
+          "path": ".nvmrc",
+          "line": 1
+        },
+        {
+          "path": "package.json",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "title": "Install dependencies",
+      "commands": [
+        "corepack enable && pnpm install"
+      ],
+      "sources": [],
+      "why": "Detected from package.json packageManager pnpm@9.15.0."
+    },
+    {
+      "title": "Configure environment variables",
+      "commands": [
+        "cp .env.example .env"
+      ],
+      "why": "The code reads 2 variables: JWT_SECRET, PORT.",
+      "sources": [
+        {
+          "path": ".env.example",
+          "line": 4,
+          "kind": "template"
+        },
+        {
+          "path": "src/auth/token.ts",
+          "line": 29,
+          "kind": "code"
+        },
+        {
+          "path": ".env.example",
+          "line": 2,
+          "kind": "template"
+        }
+      ]
+    },
+    {
+      "title": "Start backing services",
+      "commands": [
+        "docker compose up -d redis"
+      ],
+      "why": "Services the app depends on: redis (redis:7).",
+      "sources": [
+        {
+          "path": "docker-compose.yml",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "title": "Set up the project",
+      "commands": [
+        "make setup"
+      ],
+      "why": "Install dependencies",
+      "sources": [
+        {
+          "path": "Makefile",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "title": "Build",
+      "commands": [
+        "pnpm build"
+      ],
+      "sources": [
+        {
+          "path": "package.json",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "title": "Run it locally",
+      "commands": [
+        "pnpm dev"
+      ],
+      "sources": [
+        {
+          "path": "package.json",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "title": "Run the tests",
+      "commands": [
+        "pnpm test",
+        "make test"
+      ],
+      "sources": [
+        {
+          "path": "package.json",
+          "line": 18
+        },
+        {
+          "path": "Makefile",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "title": "Lint and type check",
+      "commands": [
+        "pnpm lint"
+      ],
+      "sources": [
+        {
+          "path": "package.json",
+          "line": 19
+        }
+      ]
+    },
+    {
+      "title": "Format",
+      "commands": [
+        "pnpm format"
+      ],
+      "sources": [
+        {
+          "path": "package.json",
+          "line": 20
+        }
+      ]
+    }
+  ],
+  "prChecks": [
+    {
+      "pipeline": ".github/workflows/ci.yml",
+      "job": "lint",
+      "command": "pnpm install --frozen-lockfile",
+      "at": {
+        "path": ".github/workflows/ci.yml",
+        "line": 22
+      }
+    },
+    {
+      "pipeline": ".github/workflows/ci.yml",
+      "job": "lint",
+      "command": "pnpm lint",
+      "at": {
+        "path": ".github/workflows/ci.yml",
+        "line": 23
+      }
+    },
+    {
+      "pipeline": ".github/workflows/ci.yml",
+      "job": "test",
+      "command": "pnpm test",
+      "at": {
+        "path": ".github/workflows/ci.yml",
+        "line": 42
+      }
+    }
+  ],
+  "contributing": {
+    "guide": "CONTRIBUTING.md",
+    "sections": [
+      "Development setup",
+      "Commit messages",
+      "Pull requests"
+    ],
+    "issueTemplates": []
+  }
+}

@@ -137,6 +137,10 @@ export async function scanRepo(rootInput: string, opts: ScanOptions): Promise<Sc
     imp.resolved = res.resolved;
     imp.external = res.external;
   }
+  for (let i = imports.length - 1; i >= 0; i--) {
+    const imp = imports[i];
+    if (imp?.speculative && !imp.resolved) imports.splice(i, 1);
+  }
 
   const linker = new Linker(symbols, imports);
   resolveCalls(calls, linker);
@@ -207,6 +211,8 @@ function groupPrevious(prev: RepoFacts | undefined): Map<string, PrevExtract> {
     return e;
   };
   for (const s of prev.symbols) get(s.path).symbols.push(s);
+  // Gotcha: speculative imports that did not resolve last time were dropped, so a
+  // submodule added since then is only linked once the importing file changes.
   for (const i of prev.imports)
     get(i.from).imports.push({ ...i, resolved: undefined, external: undefined });
   for (const c of prev.calls) get(c.path).calls.push({ ...c, resolved: undefined });

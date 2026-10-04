@@ -47,7 +47,8 @@ export function rankRisk(
 
       if (centrality >= 0.5) reasons.push("central in the import graph");
       if (churn >= 0.5) reasons.push(`changed often (${commits} commits)`);
-      if (pathHit) reasons.push(`sensitive path (matches "${pathHit.source}")`);
+      if (pathHit)
+        reasons.push(`sensitive path ("${pathHit.exec(f.path)?.[0] ?? pathHit.source}")`);
       else if (symbolHit) reasons.push(`sensitive symbol name (${symbolHit})`);
       if (size >= 0.8) reasons.push(`large (${f.lines} lines)`);
 

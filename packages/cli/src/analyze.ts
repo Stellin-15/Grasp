@@ -11,6 +11,7 @@ import {
   scanRepo,
   toPosixPath,
   writeJson,
+  type GitInfo,
   type GraspConfig,
   type RepoFacts,
   type WalkResult,
@@ -59,8 +60,8 @@ export async function analyze(pathArg: string, opts: CommonOptions): Promise<Ana
   if (!st?.isDirectory()) throw new UserError(`Not a directory: ${pathArg}`);
 
   const useGit = opts.git !== false;
-  const info = useGit ? await gitInfo(root) : { isGit: false };
-  const remote = "remote" in info && info.remote ? sanitizeRemote(info.remote) : undefined;
+  const info: GitInfo = useGit ? await gitInfo(root) : { isGit: false };
+  const remote = info.remote ? sanitizeRemote(info.remote) : undefined;
   const id = repoId(toPosixPath(root), remote);
   const workspace = resolveWorkspace(root, id, { dir: opts.workspace, inRepo: opts.inRepo });
 
@@ -78,6 +79,7 @@ export async function analyze(pathArg: string, opts: CommonOptions): Promise<Ana
     toolVersion: VERSION,
     useGit,
     previous: usablePrevious,
+    gitInfo: info,
     onProgress: (done, total) => {
       if (done % 200 === 0 || done === total) progress(`Scanning files… ${done}/${total}`);
     },
@@ -100,7 +102,7 @@ export async function analyze(pathArg: string, opts: CommonOptions): Promise<Ana
   });
   clearProgress();
 
-  await writeJson(join(workspace, "facts.json"), facts);
+  await writeJson(join(workspace, "facts.json"), facts, false);
   await writeJson(join(workspace, "report.json"), report);
   return {
     root,

@@ -1,0 +1,23 @@
+{
+  "name": "@grasp/docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Reports and static reference docs in Markdown, JSON, and HTML.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@grasp/contribute": "workspace:*",
+    "@grasp/core": "workspace:*",
+    "@grasp/infra": "workspace:*",
+    "marked": "18.0.14"
+  }
+}

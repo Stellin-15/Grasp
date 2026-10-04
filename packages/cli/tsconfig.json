@@ -4,7 +4,27 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src"],
-  "exclude": ["src/**/*.test.ts"],
-  "references": [{ "path": "../core" }]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../langs"
+    },
+    {
+      "path": "../infra"
+    },
+    {
+      "path": "../contribute"
+    },
+    {
+      "path": "../docs"
+    }
+  ]
 }

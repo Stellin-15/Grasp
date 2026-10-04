@@ -1,0 +1,412 @@
+import { posix } from "node:path";
+import {
+  FactIndex,
+  summarizeRange,
+  type BlameLine,
+  type FileFact,
+  type RepoFacts,
+  type SymbolFact,
+} from "@grasp/core";
+import {
+  cite,
+  code,
+  renderOnboarding,
+  renderPipelines,
+  renderReadingOrder,
+  renderReport,
+  renderStack,
+  table,
+  type RenderOptions,
+} from "./markdown.js";
+import type { ScanReport } from "./report.js";
+
+export interface DocPage {
+  /** POSIX path inside the docs folder, e.g. `files/src/app.ts.md`. */
+  path: string;
+  title: string;
+  markdown: string;
+}
+
+export interface ReferenceOptions {
+  /** Per-file `git blame`, used for per-symbol history. Missing files simply show no history. */
+  blame?: Map<string, (BlameLine | undefined)[]> | undefined;
+}
+
+const MAX_LISTED = 30;
+const DOCUMENTED_ROLES = new Set(["source", "test", "config"]);
+
+export function anchor(qualifiedName: string): string {
+  return `sym-${qualifiedName.replace(/[^A-Za-z0-9_]+/g, "-")}`;
+}
+
+function filePage(path: string): string {
+  return `files/${path}.md`;
+}
+
+function folderPage(dir: string): string {
+  return dir === "." || dir === "" ? "files/_folder.md" : `files/${dir}/_folder.md`;
+}
+
+function dirOf(path: string): string {
+  const i = path.lastIndexOf("/");
+  return i === -1 ? "." : path.slice(0, i);
+}
+
+function firstSentence(text: string | undefined): string {
+  if (!text) return "";
+  const line =
+    text
+      .split(/\n\s*\n/)[0]
+      ?.replace(/\s+/g, " ")
+      .trim() ?? "";
+  const m = /^(.+?[.!?])(\s|$)/.exec(line);
+  return (m?.[1] ?? line).slice(0, 160);
+}
+
+function shortDate(d: string | undefined): string {
+  return d ? d.slice(0, 10) : "";
+}
+
+export function buildReference(
+  facts: RepoFacts,
+  report: ScanReport,
+  opts: ReferenceOptions = {},
+): DocPage[] {
+  const idx = new FactIndex(facts);
+  const pages: DocPage[] = [];
+  const documented = facts.files.filter(
+    (f) => DOCUMENTED_ROLES.has(f.role) && (f.parsed || f.role === "source"),
+  );
+  const hasPage = new Set(documented.map((f) => f.path));
+
+  /** Link from one docs page to a repo file's page, or undefined when that file has no page. */
+  const linker =
+    (fromPage: string) =>
+    (repoPath: string): string => {
+      const target = hasPage.has(repoPath) ? filePage(repoPath) : undefined;
+      return target
+        ? posix.relative(posix.dirname(fromPage), target) || posix.basename(target)
+        : "";
+    };
+  const linkOpts = (fromPage: string): RenderOptions => {
+    const l = linker(fromPage);
+    return { link: (p) => l(p) || "#" };
+  };
+  const symbolLink = (fromPage: string, s: SymbolFact): string => {
+    const rel = posix.relative(posix.dirname(fromPage), filePage(s.path));
+    return `[${code(s.qualifiedName)}](${rel}#${anchor(s.qualifiedName)})`;
+  };
+
+  // L0: index and repo-wide pages.
+  const navLinks = [
+    "[Getting started](onboard.md)",
+    "[Reading order](reading-order.md)",
+    "[Tech stack](stack.md)",
+    "[CI/CD pipelines](pipelines.md)",
+    "[Browse files](files/_folder.md)",
+  ].join(" · ");
+  pages.push({
+    path: "index.md",
+    title: facts.repo.name,
+    markdown: `${navLinks}\n\n${renderReport(report, linkOpts("index.md"))}`,
+  });
+  pages.push({
+    path: "stack.md",
+    title: "Tech stack",
+    markdown: `[Index](index.md)\n\n${renderStack(report, linkOpts("stack.md"))}`,
+  });
+  pages.push({
+    path: "pipelines.md",
+    title: "CI/CD pipelines",
+    markdown: `[Index](index.md)\n\n${renderPipelines(report.pipelines, linkOpts("pipelines.md"))}`,
+  });
+  pages.push({
+    path: "onboard.md",
+    title: "Getting started",
+    markdown: `[Index](index.md)\n\n${renderOnboarding(report.onboarding, linkOpts("onboard.md"))}`,
+  });
+  pages.push({
+    path: "reading-order.md",
+    title: "Reading order",
+    markdown: `[Index](index.md)\n\n# Reading order\n\n${renderReadingOrder(report, { ...linkOpts("reading-order.md"), readingLimit: Infinity })}`,
+  });
+
+  // L1: one page per folder that contains documented files (and every ancestor, so navigation works).
+  const folders = new Map<string, { files: FileFact[]; subdirs: Set<string> }>();
+  const ensure = (dir: string) => {
+    let f = folders.get(dir);
+    if (!f) folders.set(dir, (f = { files: [], subdirs: new Set() }));
+    return f;
+  };
+  ensure(".");
+  for (const f of facts.files) {
+    if (f.role === "fixture" || f.role === "vendored" || f.role === "generated") continue;
+    let dir = dirOf(f.path);
+    ensure(dir).files.push(f);
+    while (dir !== ".") {
+      const parent = dirOf(dir);
+      ensure(parent).subdirs.add(dir);
+      dir = parent;
+    }
+  }
+  for (const [dir, { files, subdirs }] of folders) {
+    const page = folderPage(dir);
+    const rel = (target: string) => posix.relative(posix.dirname(page), target);
+    const readme = files.find((f) =>
+      /^(readme|_about)\.(md|rst|txt)$/i.test(posix.basename(f.path)),
+    );
+    const lines: string[] = [
+      dir === "."
+        ? `[Index](${rel("index.md")})`
+        : `[Up](${rel(folderPage(dirOf(dir)))}) · [Index](${rel("index.md")})`,
+      "",
+      `# ${code(dir === "." ? `${facts.repo.name}/` : `${dir}/`)}`,
+      "",
+    ];
+    if (readme) lines.push(`README: ${code(readme.path)}`, "");
+    if (subdirs.size) {
+      lines.push(
+        "## Folders",
+        "",
+        table(
+          ["Folder", "Files"],
+          [...subdirs]
+            .sort()
+            .map((d) => [
+              `[${code(posix.basename(d) + "/")}](${rel(folderPage(d))})`,
+              folders.get(d)?.files.length ?? 0,
+            ]),
+        ),
+      );
+    }
+    const rows = files
+      .sort((a, b) => a.path.localeCompare(b.path))
+      .map((f) => {
+        const name = code(posix.basename(f.path));
+        const summary = f.description ? firstSentence(f.description) : "";
+        return [
+          hasPage.has(f.path) ? `[${name}](${rel(filePage(f.path))})` : name,
+          f.language,
+          f.role,
+          f.lines,
+          idx.symbolsIn(f.path).length,
+          summary,
+        ];
+      });
+    lines.push(
+      "## Files",
+      "",
+      table(["File", "Language", "Role", "Lines", "Symbols", "Summary"], rows),
+    );
+    pages.push({ path: page, title: `${dir}/`, markdown: lines.join("\n") });
+  }
+
+  // L2 + L3: one page per file, one section per symbol.
+  for (const f of documented) {
+    const page = filePage(f.path);
+    const link = linker(page);
+    const rel = (target: string) => posix.relative(posix.dirname(page), target);
+    const symbols = idx.symbolsIn(f.path);
+    const h = facts.history[f.path];
+    const meta = [
+      f.language,
+      f.role,
+      `${f.lines} lines`,
+      `${symbols.length} symbols`,
+      h
+        ? `${h.commits} commits by ${h.authors} author${h.authors === 1 ? "" : "s"}, last ${shortDate(h.lastDate)}`
+        : "",
+      f.hasSyntaxErrors ? "**has syntax errors, facts may be partial**" : "",
+      f.isScript ? "runs as a script" : "",
+    ].filter(Boolean);
+    const out: string[] = [
+      `[Folder](${rel(folderPage(dirOf(f.path)))}) · [Index](${rel("index.md")})`,
+      "",
+      `# ${code(f.path)}`,
+      "",
+      meta.join(" · "),
+      "",
+    ];
+    if (f.description) out.push(...f.description.split("\n").map((l) => `> ${l}`), "");
+    if (!f.parsed) {
+      out.push(`_${f.language} is not parsed yet, so only file-level facts are shown._`, "");
+    }
+
+    if (symbols.length) {
+      out.push(
+        "## Contents",
+        "",
+        table(
+          ["Symbol", "Kind", "Lines", "Exported", "Summary"],
+          symbols.map((s) => [
+            `[${code(s.qualifiedName)}](#${anchor(s.qualifiedName)})`,
+            s.kind,
+            `${s.range.startLine}-${s.range.endLine}`,
+            s.exported ? (s.defaultExport ? "default" : "yes") : "no",
+            firstSentence(s.docstring),
+          ]),
+        ),
+      );
+    }
+
+    const imports = idx.importsOf(f.path);
+    if (imports.length) {
+      out.push(
+        "## Imports",
+        "",
+        table(
+          ["Line", "Module", "Names", "Resolves to"],
+          imports.map((i) => [
+            i.line,
+            code(i.specifier),
+            i.names
+              .map((n) => (n.imported === n.local ? n.local : `${n.imported} as ${n.local}`))
+              .join(", "),
+            i.resolved
+              ? cite(i.resolved, undefined, (p) => link(p) || "#")
+              : i.external
+                ? `package ${code(i.external)}`
+                : "unresolved",
+          ]),
+        ),
+      );
+    }
+    const importers = [...new Map(idx.importers(f.path).map((i) => [i.from, i])).values()];
+    if (importers.length) {
+      out.push(
+        "## Imported by",
+        "",
+        ...importers
+          .slice(0, MAX_LISTED)
+          .map((i) => `- ${cite(i.from, i.line, (p) => link(p) || "#")}`),
+        "",
+      );
+    }
+    const tests = idx.testsFor(f.path);
+    if (tests.length)
+      out.push(
+        "## Tests",
+        "",
+        ...tests.map((t) => `- ${cite(t, undefined, (p) => link(p) || "#")}`),
+        "",
+      );
+
+    if (symbols.length) out.push("## Symbols", "");
+    const blame = opts.blame?.get(f.path);
+    for (const s of symbols) {
+      const depth = s.parentId ? "####" : "###";
+      out.push(
+        `<a id="${anchor(s.qualifiedName)}"></a>`,
+        "",
+        `${depth} ${code(s.qualifiedName)} · ${s.kind}`,
+        "",
+      );
+      out.push("```" + fenceLang(f.language), s.signature, "```", "");
+      const facts2 = [
+        `Lines ${s.range.startLine}-${s.range.endLine}`,
+        s.exported ? (s.defaultExport ? "default export" : "exported") : "internal",
+        s.async ? "async" : "",
+        s.decorators?.length ? `decorators ${s.decorators.map(code).join(", ")}` : "",
+        s.parentId ? `member of ${symbolLink(page, idx.symbols.get(s.parentId) ?? s)}` : "",
+      ].filter(Boolean);
+      out.push(facts2.join(" · "), "");
+      if (s.docstring) out.push(...s.docstring.split("\n").map((l) => `> ${l}`), "");
+
+      if (s.params.length) {
+        out.push(
+          "**Parameters**",
+          "",
+          table(
+            ["Name", "Type", "Default"],
+            s.params.map((p) => [
+              code(`${p.rest ? "..." : ""}${p.name}${p.optional && !p.defaultValue ? "?" : ""}`),
+              p.type ? code(p.type) : "",
+              p.defaultValue ? code(p.defaultValue) : "",
+            ]),
+          ),
+        );
+      }
+      if (s.returns)
+        out.push(
+          `**${s.kind === "constant" || s.kind === "variable" ? "Type" : "Returns"}:** ${code(s.returns)}`,
+          "",
+        );
+
+      const members = idx.children(s.id);
+      if (members.length)
+        out.push(
+          `**Members:** ${members.map((m) => `[${code(m.name)}](#${anchor(m.qualifiedName)})`).join(", ")}`,
+          "",
+        );
+
+      const callers = idx.callers(s.id);
+      if (callers.length) {
+        out.push(`**Called by** (${callers.length}):`, "");
+        for (const c of callers.slice(0, MAX_LISTED)) {
+          const from = idx.symbols.get(c.from);
+          out.push(
+            `- ${cite(c.path, c.line, (p) => link(p) || "#")}${from ? ` in ${symbolLink(page, from)}` : " (top level of file)"}`,
+          );
+        }
+        if (callers.length > MAX_LISTED) out.push(`- … ${callers.length - MAX_LISTED} more`);
+        out.push("");
+      }
+      const callees = idx.callees(s.id);
+      if (callees.length) {
+        const resolved = [
+          ...new Map(callees.filter((c) => c.resolved).map((c) => [c.resolved, c])).values(),
+        ];
+        const external = [...new Set(callees.filter((c) => !c.resolved).map((c) => c.callee))];
+        if (resolved.length) {
+          out.push(
+            `**Calls:** ${resolved
+              .slice(0, MAX_LISTED)
+              .map((c) => {
+                const target = c.resolved ? idx.symbols.get(c.resolved) : undefined;
+                return target ? symbolLink(page, target) : code(c.callee);
+              })
+              .join(", ")}`,
+            "",
+          );
+        }
+        if (external.length) {
+          out.push(
+            `**Also calls** (outside this repo or dynamic): ${external.slice(0, MAX_LISTED).map(code).join(", ")}${external.length > MAX_LISTED ? ", …" : ""}`,
+            "",
+          );
+        }
+      }
+      const symTests = idx.testsFor(s.id);
+      if (symTests.length)
+        out.push(
+          `**Tested by:** ${symTests.map((t) => cite(t, undefined, (p) => link(p) || "#")).join(", ")}`,
+          "",
+        );
+
+      if (blame?.length) {
+        const r = summarizeRange(blame, s.range.startLine, s.range.endLine);
+        if (r.introduced && r.lastChanged) {
+          const fmt = (b: BlameLine) =>
+            `${code(b.hash.slice(0, 7))} "${b.subject}" (${shortDate(b.date)}, ${b.author})`;
+          const parts = [`introduced around ${fmt(r.introduced)}`];
+          if (r.lastChanged.hash !== r.introduced.hash)
+            parts.push(`last changed in ${fmt(r.lastChanged)}`);
+          parts.push(
+            `${r.commits.length} commit${r.commits.length === 1 ? " owns" : "s own"} its current lines`,
+          );
+          out.push(`**History:** ${parts.join("; ")}.`, "");
+        }
+      }
+    }
+    pages.push({ path: page, title: f.path, markdown: out.join("\n") });
+  }
+  return pages;
+}
+
+function fenceLang(language: string): string {
+  return (
+    (
+      { TypeScript: "ts", TSX: "tsx", JavaScript: "js", Python: "python" } as Record<string, string>
+    )[language] ?? ""
+  );
+}

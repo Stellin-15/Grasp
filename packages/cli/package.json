@@ -1,0 +1,24 @@
+{
+  "name": "@grasp/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Command line interface for Grasp.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "grasp": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@grasp/core": "workspace:*",
+    "commander": "15.0.0"
+  }
+}

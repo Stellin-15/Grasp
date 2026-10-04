@@ -61,8 +61,9 @@ export async function writeFileAtomic(path: string, content: string): Promise<vo
   await rename(tmp, path);
 }
 
-export async function writeJson(path: string, data: unknown): Promise<void> {
-  await writeFileAtomic(path, JSON.stringify(data, null, 2) + "\n");
+/** `pretty: false` for large machine data: indentation makes an 80 MB fact base 5 s slower to write. */
+export async function writeJson(path: string, data: unknown, pretty = true): Promise<void> {
+  await writeFileAtomic(path, JSON.stringify(data, null, pretty ? 2 : undefined) + "\n");
 }
 
 export async function readJson<T>(path: string): Promise<T | undefined> {

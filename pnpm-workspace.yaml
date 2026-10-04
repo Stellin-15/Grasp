@@ -1,2 +1,9 @@
 packages:
   - "packages/*"
+
+# Why: Grasp only loads the grammars' .wasm files through web-tree-sitter, so the
+# node-gyp native bindings these packages try to build are never used.
+ignoredBuiltDependencies:
+  - tree-sitter-javascript
+  - tree-sitter-python
+  - tree-sitter-typescript

@@ -21,6 +21,7 @@ import {
   renderStack,
 } from "@grasp/docs";
 import { analyze, UserError, type Analysis, type CommonOptions } from "./analyze.js";
+import { runExplain, type ExplainCliOptions } from "./explain-cli.js";
 import { mdToTerminal } from "./terminal.js";
 
 export interface OutputOptions extends CommonOptions {
@@ -378,12 +379,15 @@ async function mapLimit<T>(
 
 export async function docsBuildCommand(
   path: string,
-  opts: OutputOptions & { history?: boolean; format?: string; historyLimit?: string },
+  opts: ExplainCliOptions & { history?: boolean; format?: string; historyLimit?: string },
 ): Promise<void> {
   const a = await analyze(path, opts);
   const format = opts.format ?? "all";
   if (!["md", "html", "all"].includes(format))
     throw new UserError(`--format must be md, html, or all`);
+  // Explanations only when asked: sending code to a model always needs an explicit flag.
+  const explanations = opts.explain ? await runExplain(a, opts) : undefined;
+  if (opts.explain && opts.dryRun) return;
 
   const blameByFile = new Map<string, (BlameLine | undefined)[]>();
   if (opts.history !== false && a.facts.repo.isGit) {
@@ -398,7 +402,7 @@ export async function docsBuildCommand(
     if (process.stderr.isTTY) process.stderr.write("\r\x1b[2K");
   }
 
-  const pages = buildReference(a.facts, a.report, { blame: blameByFile });
+  const pages = buildReference(a.facts, a.report, { blame: blameByFile, explanations });
   const outDir = join(a.workspace, "docs");
   // Why: pages for deleted files must not linger. The docs folder belongs to Grasp.
   await rm(outDir, { recursive: true, force: true });
@@ -423,9 +427,11 @@ export async function docsBuildCommand(
   );
   if (format !== "html") print(`  ${pc.cyan(join(outDir, "index.md"))}`);
   if (format !== "md") print(`  ${pc.cyan(join(outDir, "index.html"))}`);
-  print(
-    pc.dim(
-      "These are static facts. LLM-written explanations of each function's logic arrive in Phase 2.",
-    ),
-  );
+  if (!explanations) {
+    print(
+      pc.dim(
+        "Static facts only. Add --explain to have Claude Code explain each function's logic (try --dry-run first).",
+      ),
+    );
+  }
 }

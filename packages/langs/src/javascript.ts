@@ -14,6 +14,7 @@ import {
   type SymbolFact,
   type SymbolKind,
 } from "@grasp/core";
+import { sharedPool } from "./pool.js";
 import { loadGrammar, parse, type GrammarName, type Node } from "./runtime.js";
 import {
   calleeText,
@@ -23,6 +24,7 @@ import {
   isLicenseHeader,
   lineOf,
   oneLine,
+  OwnerSpans,
 } from "./util.js";
 
 const FUNCTION_VALUES = new Set([
@@ -49,10 +51,6 @@ function stringValue(node: Node | null | undefined): string | undefined {
 
 function typeText(node: Node | null): string | undefined {
   return node ? oneLine(node.text.replace(/^:\s*/, ""), 160) : undefined;
-}
-
-function nodeKey(node: Node): string {
-  return `${node.startIndex}:${node.endIndex}:${node.type}`;
 }
 
 function parseParams(node: Node | null): Param[] {
@@ -113,7 +111,7 @@ class JsExtractor {
   private readonly exportedNames = new Set<string>();
   private defaultName: string | undefined;
   /** Nodes whose calls belong to a symbol (function bodies, initializers). */
-  private readonly owners = new Map<string, string>();
+  private readonly owners = new OwnerSpans();
 
   constructor(private readonly path: string) {}
 
@@ -211,11 +209,11 @@ class JsExtractor {
     const existing = this.symbols.find((s) => s.id === sym.id);
     if (existing) {
       existing.range.endLine = Math.max(existing.range.endLine, sym.range.endLine);
-      if (opts.owner) this.owners.set(nodeKey(opts.owner), existing.id);
+      if (opts.owner) this.owners.add(opts.owner, existing.id);
       return existing;
     }
     this.symbols.push(sym);
-    if (opts.owner) this.owners.set(nodeKey(opts.owner), sym.id);
+    if (opts.owner) this.owners.add(opts.owner, sym.id);
     return sym;
   }
 
@@ -470,32 +468,25 @@ class JsExtractor {
   private readonly constructed = new Map<string, string>();
 
   private collectCalls(root: Node): void {
-    // Pre-order, in source order, so a declaration is seen before later uses.
-    const stack: [Node, string][] = [[root, this.path]];
-    while (stack.length) {
-      const [node, parentOwner] = stack.pop() as [Node, string];
-      const owner = this.owners.get(nodeKey(node)) ?? parentOwner;
-      if (node.type === "variable_declarator") {
-        const name = node.childForFieldName("name");
-        const value = node.childForFieldName("value");
-        const ctor =
-          value?.type === "new_expression" ? value.childForFieldName("constructor") : null;
-        if (name?.type === "identifier" && ctor) {
-          this.constructed.set(
-            `${owner}\0${name.text}`,
-            calleeText(ctor, MEMBER, "object", "property"),
-          );
-        }
-      }
+    // Why descendantsOfType: tree-sitter filters natively, which is far faster
+    // than visiting every node from JavaScript through the WASM boundary.
+    for (const node of root.descendantsOfType("variable_declarator")) {
+      const name = node.childForFieldName("name");
+      const value = node.childForFieldName("value");
+      const ctor = value?.type === "new_expression" ? value.childForFieldName("constructor") : null;
+      if (name?.type !== "identifier" || !ctor) continue;
+      const owner = this.owners.ownerAt(node.startIndex, this.path);
+      this.constructed.set(
+        `${owner}\0${name.text}`,
+        calleeText(ctor, MEMBER, "object", "property"),
+      );
+    }
+    for (const node of root.descendantsOfType(["call_expression", "new_expression"])) {
+      const owner = this.owners.ownerAt(node.startIndex, this.path);
       if (node.type === "call_expression") this.call(node, owner);
-      else if (node.type === "new_expression") {
+      else {
         const ctor = node.childForFieldName("constructor");
         if (ctor) this.pushCall(node, owner, calleeText(ctor, MEMBER, "object", "property"), true);
-      }
-      const children = node.namedChildren;
-      for (let i = children.length - 1; i >= 0; i--) {
-        const c = children[i];
-        if (c) stack.push([c, owner]);
       }
     }
   }
@@ -743,6 +734,8 @@ export const javascriptPack: LanguagePack = {
   async init() {
     await Promise.all([loadGrammar("javascript"), loadGrammar("typescript"), loadGrammar("tsx")]);
   },
-  extract: extractJavaScript,
+  extract: (source, path, language) =>
+    sharedPool()?.run("javascript", source, path, language) ??
+    extractJavaScript(source, path, language),
   createResolver: createJsResolver,
 };

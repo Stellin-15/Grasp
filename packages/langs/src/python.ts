@@ -11,6 +11,7 @@ import {
   type Resolver,
   type SymbolFact,
 } from "@grasp/core";
+import { sharedPool } from "./pool.js";
 import { loadGrammar, parse, type Node } from "./runtime.js";
 import {
   calleeText,
@@ -20,13 +21,10 @@ import {
   isLicenseHeader,
   lineOf,
   oneLine,
+  OwnerSpans,
 } from "./util.js";
 
 const MEMBER = ["attribute"];
-
-function nodeKey(node: Node): string {
-  return `${node.startIndex}:${node.endIndex}:${node.type}`;
-}
 
 function docstringOf(body: Node | null): string | undefined {
   const first = body?.namedChildren[0];
@@ -84,7 +82,7 @@ class PyExtractor {
   readonly calls: CallFact[] = [];
   isScript = false;
   description: string | undefined;
-  private readonly owners = new Map<string, string>();
+  private readonly owners = new OwnerSpans();
   private allNames: Set<string> | undefined;
 
   constructor(private readonly path: string) {}
@@ -189,12 +187,12 @@ class PyExtractor {
       const existing = this.symbols.find((s) => s.id === sym.id);
       if (existing) {
         existing.range.endLine = Math.max(existing.range.endLine, sym.range.endLine);
-        this.owners.set(nodeKey(def), existing.id);
+        this.owners.add(def, existing.id);
       }
       return;
     }
     this.symbols.push(sym);
-    this.owners.set(nodeKey(def), sym.id);
+    this.owners.add(def, sym.id);
     if (isClass) for (const c of body?.namedChildren ?? []) this.statement(c, sym);
     // Nested functions are not separate symbols; their calls belong to the outer function.
   }
@@ -230,7 +228,7 @@ class PyExtractor {
     if (type) sym.returns = oneLine(type.text, 120);
     if (this.symbols.some((s) => s.id === sym.id)) return;
     this.symbols.push(sym);
-    if (right) this.owners.set(nodeKey(right), sym.id);
+    if (right) this.owners.add(right, sym.id);
   }
 
   private importStatement(node: Node): void {
@@ -287,48 +285,30 @@ class PyExtractor {
   private collectCalls(root: Node): void {
     // `${owner}\0${variable}` -> class callee, from `x = Foo(...)`.
     const constructed = new Map<string, string>();
-    const stack: [Node, string][] = [[root, this.path]];
-    while (stack.length) {
-      const [node, parentOwner] = stack.pop() as [Node, string];
-      const owner = this.owners.get(nodeKey(node)) ?? parentOwner;
-      if (node.type === "assignment") {
-        const left = node.childForFieldName("left");
-        const cls = this.constructorOf(node.childForFieldName("right"));
-        if (left?.type === "identifier" && cls) constructed.set(`${owner}\0${left.text}`, cls);
-      }
-      if (node.type === "call") {
-        const fn = node.childForFieldName("function");
-        if (fn) {
-          const callee = calleeText(fn, MEMBER, "object", "attribute");
-          const name = callee.slice(callee.lastIndexOf(".") + 1);
-          if (name && name !== "<expr>") {
-            const call: CallFact = {
-              from: owner,
-              path: this.path,
-              line: lineOf(node),
-              callee,
-              name,
-            };
-            const head = callee.includes(".")
-              ? callee.slice(0, callee.lastIndexOf("."))
-              : undefined;
-            const receiver =
-              (fn.type === "attribute"
-                ? this.constructorOf(fn.childForFieldName("object"))
-                : undefined) ??
-              (head
-                ? (constructed.get(`${owner}\0${head}`) ?? constructed.get(`${this.path}\0${head}`))
-                : undefined);
-            if (receiver) call.receiver = receiver;
-            this.calls.push(call);
-          }
-        }
-      }
-      const children = node.namedChildren;
-      for (let i = children.length - 1; i >= 0; i--) {
-        const c = children[i];
-        if (c) stack.push([c, owner]);
-      }
+    for (const node of root.descendantsOfType("assignment")) {
+      const left = node.childForFieldName("left");
+      const cls = this.constructorOf(node.childForFieldName("right"));
+      if (left?.type !== "identifier" || !cls) continue;
+      constructed.set(`${this.owners.ownerAt(node.startIndex, this.path)}\0${left.text}`, cls);
+    }
+    for (const node of root.descendantsOfType("call")) {
+      const fn = node.childForFieldName("function");
+      if (!fn) continue;
+      const callee = calleeText(fn, MEMBER, "object", "attribute");
+      const name = callee.slice(callee.lastIndexOf(".") + 1);
+      if (!name || name === "<expr>") continue;
+      const owner = this.owners.ownerAt(node.startIndex, this.path);
+      const call: CallFact = { from: owner, path: this.path, line: lineOf(node), callee, name };
+      const head = callee.includes(".") ? callee.slice(0, callee.lastIndexOf(".")) : undefined;
+      const receiver =
+        (fn.type === "attribute"
+          ? this.constructorOf(fn.childForFieldName("object"))
+          : undefined) ??
+        (head
+          ? (constructed.get(`${owner}\0${head}`) ?? constructed.get(`${this.path}\0${head}`))
+          : undefined);
+      if (receiver) call.receiver = receiver;
+      this.calls.push(call);
     }
   }
 }
@@ -433,6 +413,7 @@ export const pythonPack: LanguagePack = {
   version: 1,
   languages: ["Python"],
   init: () => loadGrammar("python"),
-  extract: (source, path) => extractPython(source, path),
+  extract: (source, path, language) =>
+    sharedPool()?.run("python", source, path, language) ?? extractPython(source, path),
   createResolver: createPyResolver,
 };

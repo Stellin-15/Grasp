@@ -69,3 +69,37 @@ export function calleeText(
   }
   return "<expr>";
 }
+
+/**
+ * Byte ranges of nodes whose calls belong to a symbol (function bodies,
+ * initializers). Lets call sites find their enclosing symbol by position, so
+ * extraction can ask tree-sitter for call nodes directly instead of walking
+ * every node through the WASM boundary.
+ */
+export class OwnerSpans {
+  private readonly spans: { start: number; end: number; id: string }[] = [];
+  private sorted = true;
+
+  add(node: Node, id: string): void {
+    this.spans.push({ start: node.startIndex, end: node.endIndex, id });
+    this.sorted = false;
+  }
+
+  /** Innermost owner containing `index`, or `fallback` (the file) when none does. */
+  ownerAt(index: number, fallback: string): string {
+    if (!this.sorted) {
+      this.spans.sort((a, b) => a.start - b.start || b.end - a.end);
+      this.sorted = true;
+    }
+    let best = fallback;
+    let bestLen = Infinity;
+    for (const s of this.spans) {
+      if (s.start > index) break;
+      if (index < s.end && s.end - s.start < bestLen) {
+        best = s.id;
+        bestLen = s.end - s.start;
+      }
+    }
+    return best;
+  }
+}

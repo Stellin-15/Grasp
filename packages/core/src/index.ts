@@ -1,6 +1,7 @@
 export * from "./types.js";
 export { toPosixPath } from "./paths.js";
 export { contentHash } from "./hash.js";
+export { parseJsonc } from "./jsonc.js";
 export { detectLanguage, isProgrammingLanguage } from "./languages.js";
 export { classifyFile, isSecretPath, looksGenerated, DEFAULT_IGNORED_DIRS } from "./classify.js";
 export {

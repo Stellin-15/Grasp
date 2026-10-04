@@ -1,0 +1,21 @@
+{
+  "name": "@grasp/contribute",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Onboarding and contribution helpers.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@grasp/core": "workspace:*",
+    "@grasp/infra": "workspace:*"
+  }
+}

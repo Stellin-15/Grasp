@@ -47,7 +47,12 @@ export class Linker {
         }
         let m = this.bindings.get(imp.from);
         if (!m) this.bindings.set(imp.from, (m = new Map()));
-        m.set(n.local, { file: imp.resolved, imported: n.imported });
+        // Python `from pkg import mod` yields both a name binding and, when `mod` is a
+        // real submodule file, a module binding. The module is the truth; order must not matter.
+        const existing = m.get(n.local);
+        if (!existing || (n.imported === "*" && existing.imported !== "*")) {
+          m.set(n.local, { file: imp.resolved, imported: n.imported });
+        }
       }
     }
   }

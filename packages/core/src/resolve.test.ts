@@ -99,6 +99,19 @@ describe("Linker", () => {
     expect(linker.resolveCall(chained)).toBe("lib/math.ts#Calc.twice");
   });
 
+  it("prefers a submodule binding over a same-named import, in either order", () => {
+    const subSymbols = [sym("pkg/mod.py", "run")];
+    const named = imp("app.py", "pkg/__init__.py", [["mod", "mod"]]);
+    const module = imp("app.py", "pkg/mod.py", [["*", "mod"]]);
+    for (const order of [
+      [named, module],
+      [module, named],
+    ]) {
+      const l = new Linker(subSymbols, order);
+      expect(l.resolveCall(call("app.py", "app.py", "mod.run"))).toBe("pkg/mod.py#run");
+    }
+  });
+
   it("leaves unknown and dynamic calls unresolved", () => {
     expect(linker.resolveCall(call("app.ts", "app.ts#run", "console.log"))).toBeUndefined();
     expect(linker.resolveCall(call("app.ts", "app.ts#run", "a.b.c"))).toBeUndefined();

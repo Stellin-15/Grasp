@@ -21,7 +21,10 @@ async function scan(name: string): Promise<RepoFacts> {
 function golden(facts: RepoFacts): string {
   const { repo, ...rest } = facts;
   delete (rest as Partial<RepoFacts>).generatedAt;
-  return JSON.stringify({ ...rest, repo: { name: repo.name, isGit: repo.isGit } }, null, 2) + "\n";
+  const files = rest.files.map(({ mtimeMs: _mtime, ...f }) => f);
+  return (
+    JSON.stringify({ ...rest, files, repo: { name: repo.name, isGit: repo.isGit } }, null, 2) + "\n"
+  );
 }
 
 describe("js-app fixture", async () => {

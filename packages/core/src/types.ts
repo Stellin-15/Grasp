@@ -21,6 +21,8 @@ export interface FileFact {
   language: string;
   role: FileRole;
   size: number;
+  /** Local modification time, used only to skip re-reading unchanged files. Not portable. */
+  mtimeMs?: number | undefined;
   lines: number;
   hash: string;
   /** True when a language pack extracted symbols from this file. */

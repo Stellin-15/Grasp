@@ -2,7 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { classifyFile, looksGenerated } from "./classify.js";
 import type { GraspConfig } from "./config.js";
-import { gitInfo, readHistory } from "./git.js";
+import { gitInfo, readHistory, type GitInfo } from "./git.js";
 import { contentHash } from "./hash.js";
 import { detectLanguage } from "./languages.js";
 import type { ExtractResult, LanguagePack, ResolveContext, Resolver } from "./lang.js";
@@ -26,6 +26,8 @@ export interface ScanOptions {
   useGit?: boolean | undefined;
   /** Facts from the last scan. Files with an unchanged hash reuse their extraction. */
   previous?: RepoFacts | undefined;
+  /** Already-known git info, so callers that needed it first do not pay for it twice. */
+  gitInfo?: GitInfo | undefined;
   onProgress?: ((done: number, total: number) => void) | undefined;
 }
 
@@ -37,7 +39,8 @@ export interface ScanResult {
 
 /** Roles whose code is worth extracting. Generated, vendored, and fixture code is listed only. */
 const PARSE_ROLES = new Set(["source", "test", "config"]);
-const CONCURRENCY = 16;
+// Mostly I/O bound (stat, read), so well above the core count.
+const CONCURRENCY = 64;
 
 async function mapLimit<T, R>(
   items: T[],
@@ -64,8 +67,13 @@ export async function scanRepo(rootInput: string, opts: ScanOptions): Promise<Sc
   const root = resolve(rootInput);
   const useGit = opts.useGit ?? true;
   const warnings: string[] = [];
-  const info = useGit ? await gitInfo(root) : { isGit: false as const };
+  const info: GitInfo = useGit ? (opts.gitInfo ?? (await gitInfo(root))) : { isGit: false };
   const remote = info.remote ? sanitizeRemote(info.remote) : undefined;
+  // History is independent of extraction, so it runs while files are parsed.
+  const historyPromise =
+    info.isGit && opts.config.git.maxCommits > 0
+      ? readHistory(root, opts.config.git.maxCommits)
+      : undefined;
 
   const walk = await listFiles(root, { ignore: opts.config.ignore, useGit });
   const fileSet = new Set(walk.files);
@@ -142,20 +150,7 @@ export async function scanRepo(rootInput: string, opts: ScanOptions): Promise<Sc
     if (imp?.speculative && !imp.resolved) imports.splice(i, 1);
   }
 
-  const linker = new Linker(symbols, imports);
-  resolveCalls(calls, linker);
-  const tests = linkTests(files, imports, calls, linker);
-
-  let history: RepoFacts["history"] = {};
-  let historyWindow: number | undefined;
-  if (info.isGit && opts.config.git.maxCommits > 0) {
-    const h = await readHistory(root, opts.config.git.maxCommits);
-    history = Object.fromEntries(Object.entries(h.files).filter(([p]) => fileSet.has(p)));
-    historyWindow = h.commitsRead;
-  }
-
-  // Files are read concurrently, so warning order is otherwise nondeterministic.
-  warnings.sort();
+  // Sort before linking: files finish in arbitrary order, and linking must not depend on it.
   files.sort((a, b) => a.path.localeCompare(b.path));
   symbols.sort(
     (a, b) =>
@@ -171,6 +166,20 @@ export async function scanRepo(rootInput: string, opts: ScanOptions): Promise<Sc
     (a, b) => a.path.localeCompare(b.path) || a.line - b.line || a.callee.localeCompare(b.callee),
   );
 
+  const linker = new Linker(symbols, imports);
+  resolveCalls(calls, linker);
+  const tests = linkTests(files, imports, calls, linker);
+
+  let history: RepoFacts["history"] = {};
+  let historyWindow: number | undefined;
+  if (historyPromise) {
+    const h = await historyPromise;
+    history = Object.fromEntries(Object.entries(h.files).filter(([p]) => fileSet.has(p)));
+    historyWindow = h.commitsRead;
+  }
+  // Files are read concurrently, so warning order is otherwise nondeterministic.
+  warnings.sort();
+
   const facts: RepoFacts = {
     schemaVersion: FACTS_SCHEMA_VERSION,
     toolVersion: opts.toolVersion,
@@ -181,8 +190,8 @@ export async function scanRepo(rootInput: string, opts: ScanOptions): Promise<Sc
       id: repoId(toPosixPath(root), remote),
       isGit: info.isGit,
       remote,
-      branch: "branch" in info ? info.branch : undefined,
-      head: "head" in info ? info.head : undefined,
+      branch: info.branch,
+      head: info.head,
     },
     files,
     symbols,
@@ -236,21 +245,43 @@ async function scanFile(
 ): Promise<FileScan> {
   const abs = join(root, path);
   let size: number;
+  let mtimeMs: number;
   try {
     const st = await stat(abs);
     if (!st.isFile()) return { reused: false };
     size = st.size;
+    mtimeMs = st.mtimeMs;
   } catch {
     // Listed by git but deleted in the working tree.
     return { reused: false };
   }
   const language = detectLanguage(path);
   let role = classifyFile(path, language);
+  const pack = packByLanguage.get(language);
+  const extractor = pack ? `${pack.id}@${pack.version}` : undefined;
+
+  // Why: like git's index, trust size + mtime so unchanged files are not even read.
+  // Reading and hashing every file dominated warm scans of large repos.
+  const prev = prevFiles.get(path);
+  if (
+    prev &&
+    prev.size === size &&
+    prev.mtimeMs === mtimeMs &&
+    (!prev.parsed || prev.extractor === extractor)
+  ) {
+    if (!prev.parsed) return { file: { ...prev }, reused: false };
+    const cached = prevByPath.get(path) ?? { symbols: [], imports: [], calls: [] };
+    return {
+      file: { ...prev },
+      extract: { ...cached, hasSyntaxErrors: prev.hasSyntaxErrors ?? false },
+      reused: true,
+    };
+  }
 
   if (size > maxBytes) {
     warnings.push(`${path}: ${Math.round(size / 1024)} KB exceeds maxFileSizeKb, not parsed`);
     return {
-      file: { path, language, role, size, lines: 0, hash: `size-${size}`, parsed: false },
+      file: { path, language, role, size, mtimeMs, lines: 0, hash: `size-${size}`, parsed: false },
       reused: false,
     };
   }
@@ -269,6 +300,7 @@ async function scanFile(
         language: "Binary",
         role: "data",
         size,
+        mtimeMs,
         lines: 0,
         hash: contentHash(buf),
         parsed: false,
@@ -282,25 +314,23 @@ async function scanFile(
   const lines = text.length === 0 ? 0 : text.split("\n").length - (text.endsWith("\n") ? 1 : 0);
   if (role === "source" && looksGenerated(text)) role = "generated";
 
-  const pack = packByLanguage.get(language);
   // A language with a pack is code by definition, even if classification found no better role.
   if (pack && (role === "data" || role === "other")) role = "source";
-  const file: FileFact = { path, language, role, size, lines, hash, parsed: false };
-  if (!pack || !PARSE_ROLES.has(role)) return { file, reused: false };
+  const file: FileFact = { path, language, role, size, mtimeMs, lines, hash, parsed: false };
+  if (!pack || !extractor || !PARSE_ROLES.has(role)) return { file, reused: false };
 
-  const extractor = `${pack.id}@${pack.version}`;
-  const prev = prevFiles.get(path);
+  // Touched but identical content (checkout, formatter no-op): reuse by hash.
   if (prev && prev.hash === hash && prev.extractor === extractor && prev.parsed) {
     const cached = prevByPath.get(path) ?? { symbols: [], imports: [], calls: [] };
     return {
-      file: { ...prev, role, size },
+      file: { ...prev, role, size, mtimeMs },
       extract: { ...cached, hasSyntaxErrors: prev.hasSyntaxErrors ?? false },
       reused: true,
     };
   }
 
   try {
-    const extract = pack.extract(text, path, language);
+    const extract = await pack.extract(text, path, language);
     file.parsed = true;
     file.extractor = extractor;
     if (extract.hasSyntaxErrors) file.hasSyntaxErrors = true;

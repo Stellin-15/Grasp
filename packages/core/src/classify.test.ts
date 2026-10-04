@@ -10,9 +10,8 @@ describe("isSecretPath", () => {
     (p) => expect(isSecretPath(p)).toBe(true),
   );
 
-  it.each([".env.example", "src/env.ts", "docs/keys.md", "src/secretary.py"])(
-    "allows %s",
-    (p) => expect(isSecretPath(p)).toBe(false),
+  it.each([".env.example", "src/env.ts", "docs/keys.md", "src/secretary.py"])("allows %s", (p) =>
+    expect(isSecretPath(p)).toBe(false),
   );
 });
 

@@ -42,6 +42,7 @@ describe("git", () => {
     const info = await gitInfo(dir);
     expect(info.isGit).toBe(true);
     expect(info.branch).toBe("main");
+    expect(info.head).toMatch(/^[0-9a-f]{40}$/);
 
     const files = await listGitFiles(dir);
     expect(files?.sort()).toEqual([".gitignore", "a.ts", "new.ts"]);
@@ -57,7 +58,7 @@ describe("git", () => {
     const range = summarizeRange(lines, 1, 2);
     expect(range.introduced?.subject).toBe("add a");
     expect(range.commits).toHaveLength(2);
-  });
+  }, 30_000); // Spawns ~10 git processes, which are slow on Windows under parallel load.
 
   it("degrades to no history outside git", async () => {
     const dir = await mkdtemp(join(tmpdir(), "grasp-nogit-"));

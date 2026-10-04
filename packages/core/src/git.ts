@@ -27,13 +27,20 @@ export interface GitInfo {
 }
 
 export async function gitInfo(root: string): Promise<GitInfo> {
-  const inside = await runGit(root, ["rev-parse", "--is-inside-work-tree"]);
-  if (inside?.trim() !== "true") return { isGit: false };
-  const [remote, branch, head] = await Promise.all([
+  // One rev-parse answers all three questions; each git spawn costs ~100 ms on Windows.
+  const [revParse, remote] = await Promise.all([
+    // Gotcha: `--abbrev-ref` applies to every rev after it, so the full HEAD must come first.
+    runGit(root, ["rev-parse", "--is-inside-work-tree", "HEAD", "--abbrev-ref", "HEAD"]),
     runGit(root, ["config", "--get", "remote.origin.url"]),
-    runGit(root, ["rev-parse", "--abbrev-ref", "HEAD"]),
-    runGit(root, ["rev-parse", "HEAD"]),
   ]);
+  const [inside, head, branch] = (revParse ?? "").trim().split(/\r?\n/);
+  if (inside !== "true") {
+    // A fresh repo with no commits makes `HEAD` fail; it is still a git work tree.
+    const bare = await runGit(root, ["rev-parse", "--is-inside-work-tree"]);
+    return bare?.trim() === "true"
+      ? { isGit: true, remote: remote?.trim() || undefined }
+      : { isGit: false };
+  }
   return {
     isGit: true,
     remote: remote?.trim() || undefined,

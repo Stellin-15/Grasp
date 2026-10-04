@@ -593,12 +593,29 @@ function qualityTools(
 function sourceFor(dir: string, rel: string, files: Set<string>): string | undefined {
   const clean = rel.replace(/^\.\//, "");
   const base = dir ? `${dir}/${clean}` : clean;
-  const candidates = [base, base.replace(/(^|\/)(dist|lib|build|out)\//, "$1src/")];
+  const OUT = /(^|\/)(dist|distribution|lib|build|out|esm|cjs)\//;
+  const candidates = [base, ...["src", "source", "lib"].map((s) => base.replace(OUT, `$1${s}/`))];
   for (const c of candidates) {
     if (files.has(c)) return c;
-    const stem = c.replace(/\.(m|c)?jsx?$/, "");
+    const stem = c.replace(/(\.d)?\.(m|c)?[jt]sx?$/, "");
     for (const ext of [".ts", ".tsx", ".mts", ".js", ".mjs", ".py"])
       if (files.has(stem + ext)) return stem + ext;
+  }
+  return undefined;
+}
+
+/** The `"."` target of package.json `exports`, following condition objects to a path. */
+function exportsRoot(exp: unknown): string | undefined {
+  if (typeof exp === "string") return exp;
+  const r = asRecord(exp);
+  if (!r) return undefined;
+  const dot = "." in r ? r["."] : Object.keys(r).some((k) => k.startsWith(".")) ? undefined : r;
+  if (typeof dot === "string") return dot;
+  const cond = asRecord(dot);
+  for (const key of ["source", "import", "default", "require", "node", "types"]) {
+    const v = cond?.[key];
+    const found = typeof v === "string" ? v : exportsRoot(v);
+    if (found) return found;
   }
   return undefined;
 }
@@ -627,10 +644,10 @@ async function manifestEntryPoints(repo: RepoView): Promise<BuildReport["entryPo
             at: { path, line: findLine(text, /"bin"\s*:/) },
           });
       }
-      for (const field of ["main", "module", "source"]) {
-        const target = asString(json[field]);
+      for (const field of ["main", "module", "source", "exports"]) {
+        const target = field === "exports" ? exportsRoot(json.exports) : asString(json[field]);
         const src = target ? sourceFor(dir, target, files) : undefined;
-        if (src)
+        if (src && !out.some((e) => e.path === src && e.reason.startsWith("package entry")))
           out.push({
             path: src,
             reason: `package entry (package.json ${field})`,

@@ -1,0 +1,22 @@
+{
+  "name": "@grasp/infra",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tech stack, CI/CD pipeline, build, and environment detection.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@grasp/core": "workspace:*",
+    "smol-toml": "1.9.0",
+    "yaml": "2.9.1"
+  }
+}

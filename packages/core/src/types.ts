@@ -84,6 +84,11 @@ export interface ImportFact {
   resolved?: string | undefined;
   /** Package name when the import points outside the repo. */
   external?: string | undefined;
+  /**
+   * A guess the pack could not confirm alone, e.g. Python `from pkg import mod`
+   * where `mod` may be a submodule. Dropped by the scanner unless it resolves.
+   */
+  speculative?: boolean | undefined;
 }
 
 export interface CallFact {
@@ -96,6 +101,11 @@ export interface CallFact {
   /** Last segment of the callee, e.g. `save`. */
   name: string;
   isNew?: boolean | undefined;
+  /**
+   * Class name the receiver was constructed from in the same scope, e.g. `Svc`
+   * for `const s = new Svc(); s.run()`. A local hint, not type inference.
+   */
+  receiver?: string | undefined;
   /** Resolved symbol id when the target could be found statically. */
   resolved?: string | undefined;
 }

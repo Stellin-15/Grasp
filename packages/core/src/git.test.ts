@@ -9,7 +9,7 @@ async function makeRepo(): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), "grasp-git-"));
   // Gotcha: both commits would otherwise share a timestamp, making date order ambiguous.
   const git = (date: string, ...args: string[]) =>
-    execFileSync("git", args, {
+    execFileSync("git", ["-c", "core.autocrlf=false", ...args], {
       cwd: dir,
       env: {
         ...process.env,

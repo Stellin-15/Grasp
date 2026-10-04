@@ -160,7 +160,7 @@ export class ClaudeCodeBackend implements LlmBackend {
     const u = json.usage ?? {};
     return {
       data: json.structured_output,
-      model: Object.keys(json.modelUsage ?? {})[0] ?? this.model,
+      model: mainModel(json.modelUsage) ?? this.model,
       inputTokens:
         (u.input_tokens ?? 0) +
         (u.cache_creation_input_tokens ?? 0) +
@@ -169,4 +169,21 @@ export class ClaudeCodeBackend implements LlmBackend {
       costUsd: json.total_cost_usd,
     };
   }
+}
+
+/**
+ * Claude Code also calls a small model for internal housekeeping, so `modelUsage`
+ * can list several models. The one that wrote the answer produced the most output.
+ */
+function mainModel(usage: Record<string, unknown> | undefined): string | undefined {
+  let best: string | undefined;
+  let most = -1;
+  for (const [model, u] of Object.entries(usage ?? {})) {
+    const out = Number((u as { outputTokens?: number }).outputTokens ?? 0);
+    if (out > most) {
+      most = out;
+      best = model;
+    }
+  }
+  return best;
 }

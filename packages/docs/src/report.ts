@@ -154,8 +154,11 @@ export function buildReport(input: ReportInput): ScanReport {
     entry.exported++;
     if (s.docstring) entry.documented++;
   }
+  // A `src/` folder is documented by its package's README one level up, by convention.
+  const parentReadme = (dir: string) =>
+    /(^|\/)(src|source|lib)$/.test(dir) && folders.get(folderOf(dir))?.hasReadme === true;
   const undocumentedFolders = [...folders.entries()]
-    .filter(([, v]) => v.sources >= 2 && !v.hasReadme)
+    .filter(([dir, v]) => v.sources >= 2 && !v.hasReadme && !parentReadme(dir))
     .map(([path, v]) => ({
       path,
       sourceFiles: v.sources,

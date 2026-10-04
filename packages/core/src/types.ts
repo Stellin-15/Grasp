@@ -14,15 +14,7 @@ export interface LineRange {
 }
 
 export type FileRole =
-  | "source"
-  | "test"
-  | "fixture"
-  | "config"
-  | "docs"
-  | "generated"
-  | "vendored"
-  | "data"
-  | "other";
+  "source" | "test" | "fixture" | "config" | "docs" | "generated" | "vendored" | "data" | "other";
 
 export interface FileFact {
   path: string;
@@ -33,6 +25,8 @@ export interface FileFact {
   hash: string;
   /** True when a language pack extracted symbols from this file. */
   parsed: boolean;
+  /** `packId@version` that produced the facts; a mismatch invalidates cached extraction. */
+  extractor?: string | undefined;
   /** Parsed, but tree-sitter reported syntax errors, so facts may be partial. */
   hasSyntaxErrors?: boolean | undefined;
   /** Python `if __name__ == "__main__":` and similar run-as-script markers. */
@@ -42,14 +36,7 @@ export interface FileFact {
 }
 
 export type SymbolKind =
-  | "function"
-  | "method"
-  | "class"
-  | "interface"
-  | "type"
-  | "enum"
-  | "constant"
-  | "variable";
+  "function" | "method" | "class" | "interface" | "type" | "enum" | "constant" | "variable";
 
 export interface Param {
   name: string;
@@ -148,7 +135,7 @@ export interface RepoFacts {
   symbols: SymbolFact[];
   imports: ImportFact[];
   calls: CallFact[];
-  /** Symbol id to test file paths that exercise it. */
+  /** Symbol id or file path to the test file paths that exercise it. */
   tests: Record<string, string[]>;
   history: Record<string, FileHistory>;
   /** Commits scanned for history, so readers know the window. */

@@ -1,0 +1,1248 @@
+{
+  "schemaVersion": 1,
+  "toolVersion": "test",
+  "files": [
+    {
+      "path": ".env.example",
+      "language": "Other",
+      "role": "config",
+      "size": 110,
+      "lines": 4,
+      "hash": "a6365e95db904f2e",
+      "parsed": false
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "YAML",
+      "role": "config",
+      "size": 1055,
+      "lines": 49,
+      "hash": "16a5f89f9677029e",
+      "parsed": false
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "language": "YAML",
+      "role": "config",
+      "size": 666,
+      "lines": 29,
+      "hash": "ed47e6143bac4917",
+      "parsed": false
+    },
+    {
+      "path": ".nvmrc",
+      "language": "Other",
+      "role": "config",
+      "size": 3,
+      "lines": 1,
+      "hash": "f14b4987904bcb58",
+      "parsed": false
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "language": "Markdown",
+      "role": "docs",
+      "size": 192,
+      "lines": 13,
+      "hash": "1cfa47f4df9971e8",
+      "parsed": false
+    },
+    {
+      "path": "docker-compose.yml",
+      "language": "YAML",
+      "role": "config",
+      "size": 138,
+      "lines": 10,
+      "hash": "956cd09da6e3d72d",
+      "parsed": false
+    },
+    {
+      "path": "Dockerfile",
+      "language": "Dockerfile",
+      "role": "config",
+      "size": 230,
+      "lines": 10,
+      "hash": "e385744e9f30c56c",
+      "parsed": false
+    },
+    {
+      "path": "eslint.config.js",
+      "language": "JavaScript",
+      "role": "config",
+      "size": 59,
+      "lines": 1,
+      "hash": "5bd8b63663206a22",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "Makefile",
+      "language": "Makefile",
+      "role": "config",
+      "size": 148,
+      "lines": 12,
+      "hash": "46c2ef25f9b14c39",
+      "parsed": false
+    },
+    {
+      "path": "package.json",
+      "language": "JSON",
+      "role": "config",
+      "size": 783,
+      "lines": 36,
+      "hash": "f9dce19a3d12b613",
+      "parsed": false
+    },
+    {
+      "path": "README.md",
+      "language": "Markdown",
+      "role": "docs",
+      "size": 46,
+      "lines": 3,
+      "hash": "a8d34b75cde04b73",
+      "parsed": false
+    },
+    {
+      "path": "src/auth/token.ts",
+      "language": "TypeScript",
+      "role": "source",
+      "size": 800,
+      "lines": 30,
+      "hash": "2fc80c2f7d7ab8a6",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "src/broken.ts",
+      "language": "TypeScript",
+      "role": "source",
+      "size": 84,
+      "lines": 6,
+      "hash": "b7e76772ed34edb9",
+      "parsed": true,
+      "extractor": "javascript@1",
+      "hasSyntaxErrors": true
+    },
+    {
+      "path": "src/components/Button.tsx",
+      "language": "TSX",
+      "role": "source",
+      "size": 373,
+      "lines": 20,
+      "hash": "5ee17e001fffa906",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "src/config.ts",
+      "language": "TypeScript",
+      "role": "source",
+      "size": 457,
+      "lines": 17,
+      "hash": "f659fb5346ab78f5",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "src/index.ts",
+      "language": "TypeScript",
+      "role": "source",
+      "size": 261,
+      "lines": 10,
+      "hash": "ff5fe1c8c1e05032",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "src/legacy.js",
+      "language": "JavaScript",
+      "role": "source",
+      "size": 374,
+      "lines": 16,
+      "hash": "b5003bc8983913d0",
+      "parsed": true,
+      "extractor": "javascript@1",
+      "isScript": true
+    },
+    {
+      "path": "src/server.ts",
+      "language": "TypeScript",
+      "role": "source",
+      "size": 902,
+      "lines": 30,
+      "hash": "792c5fbe4a2ef8f9",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "src/utils/index.ts",
+      "language": "TypeScript",
+      "role": "source",
+      "size": 73,
+      "lines": 2,
+      "hash": "9f3e81c2ea4af404",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "src/utils/math.ts",
+      "language": "TypeScript",
+      "role": "source",
+      "size": 517,
+      "lines": 16,
+      "hash": "58cc02474c70bd1a",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "tests/math.test.ts",
+      "language": "TypeScript",
+      "role": "test",
+      "size": 264,
+      "lines": 12,
+      "hash": "d4c0e64b724fc819",
+      "parsed": true,
+      "extractor": "javascript@1"
+    },
+    {
+      "path": "tsconfig.json",
+      "language": "JSON",
+      "role": "config",
+      "size": 291,
+      "lines": 15,
+      "hash": "a8d10fe33332b84a",
+      "parsed": false
+    }
+  ],
+  "symbols": [
+    {
+      "id": "src/auth/token.ts#TokenService",
+      "name": "TokenService",
+      "qualifiedName": "TokenService",
+      "kind": "class",
+      "path": "src/auth/token.ts",
+      "range": {
+        "startLine": 4,
+        "endLine": 30
+      },
+      "signature": "export class TokenService",
+      "params": [],
+      "exported": true,
+      "docstring": "Issues and checks signed session tokens."
+    },
+    {
+      "id": "src/auth/token.ts#TokenService.constructor",
+      "name": "constructor",
+      "qualifiedName": "TokenService.constructor",
+      "kind": "method",
+      "path": "src/auth/token.ts",
+      "range": {
+        "startLine": 5,
+        "endLine": 5
+      },
+      "signature": "constructor(private readonly secret: string)",
+      "params": [
+        {
+          "name": "secret",
+          "type": "string"
+        }
+      ],
+      "exported": true,
+      "parentId": "src/auth/token.ts#TokenService"
+    },
+    {
+      "id": "src/auth/token.ts#TokenService.issue",
+      "name": "issue",
+      "qualifiedName": "TokenService.issue",
+      "kind": "method",
+      "path": "src/auth/token.ts",
+      "range": {
+        "startLine": 11,
+        "endLine": 13
+      },
+      "signature": "issue(subject: string, ttlSeconds = 3600): string",
+      "params": [
+        {
+          "name": "subject",
+          "type": "string"
+        },
+        {
+          "name": "ttlSeconds",
+          "defaultValue": "3600"
+        }
+      ],
+      "exported": true,
+      "returns": "string",
+      "docstring": "Signs a token for a user.\n@param subject user id stored in the `sub` claim",
+      "parentId": "src/auth/token.ts#TokenService"
+    },
+    {
+      "id": "src/auth/token.ts#TokenService.verify",
+      "name": "verify",
+      "qualifiedName": "TokenService.verify",
+      "kind": "method",
+      "path": "src/auth/token.ts",
+      "range": {
+        "startLine": 16,
+        "endLine": 23
+      },
+      "signature": "verify(token: string): boolean",
+      "params": [
+        {
+          "name": "token",
+          "type": "string"
+        }
+      ],
+      "exported": true,
+      "returns": "boolean",
+      "docstring": "Returns false instead of throwing so callers can map it to a 401.",
+      "parentId": "src/auth/token.ts#TokenService"
+    },
+    {
+      "id": "src/auth/token.ts#TokenService.decode",
+      "name": "decode",
+      "qualifiedName": "TokenService.decode",
+      "kind": "method",
+      "path": "src/auth/token.ts",
+      "range": {
+        "startLine": 25,
+        "endLine": 27
+      },
+      "signature": "private decode(token: string)",
+      "params": [
+        {
+          "name": "token",
+          "type": "string"
+        }
+      ],
+      "exported": true,
+      "parentId": "src/auth/token.ts#TokenService"
+    },
+    {
+      "id": "src/auth/token.ts#TokenService.fromEnv",
+      "name": "fromEnv",
+      "qualifiedName": "TokenService.fromEnv",
+      "kind": "method",
+      "path": "src/auth/token.ts",
+      "range": {
+        "startLine": 29,
+        "endLine": 29
+      },
+      "signature": "static fromEnv = (): TokenService",
+      "params": [],
+      "exported": true,
+      "returns": "TokenService",
+      "parentId": "src/auth/token.ts#TokenService"
+    },
+    {
+      "id": "src/broken.ts#ok",
+      "name": "ok",
+      "qualifiedName": "ok",
+      "kind": "function",
+      "path": "src/broken.ts",
+      "range": {
+        "startLine": 1,
+        "endLine": 3
+      },
+      "signature": "export function ok(): number",
+      "params": [],
+      "exported": true,
+      "returns": "number"
+    },
+    {
+      "id": "src/components/Button.tsx#ButtonProps",
+      "name": "ButtonProps",
+      "qualifiedName": "ButtonProps",
+      "kind": "interface",
+      "path": "src/components/Button.tsx",
+      "range": {
+        "startLine": 3,
+        "endLine": 6
+      },
+      "signature": "export interface ButtonProps",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "src/components/Button.tsx#Button",
+      "name": "Button",
+      "qualifiedName": "Button",
+      "kind": "function",
+      "path": "src/components/Button.tsx",
+      "range": {
+        "startLine": 8,
+        "endLine": 20
+      },
+      "signature": "export default function Button({ label, onClick }: ButtonProps)",
+      "params": [
+        {
+          "name": "{ label, onClick }",
+          "type": "ButtonProps"
+        }
+      ],
+      "exported": true,
+      "defaultExport": true
+    },
+    {
+      "id": "src/config.ts#Schema",
+      "name": "Schema",
+      "qualifiedName": "Schema",
+      "kind": "constant",
+      "path": "src/config.ts",
+      "range": {
+        "startLine": 3,
+        "endLine": 6
+      },
+      "signature": "const Schema = z.object({ PORT: z.coerce.number().default(3000), JWT_SECRET: z.string().min(16), });",
+      "params": [],
+      "exported": false
+    },
+    {
+      "id": "src/config.ts#AppConfig",
+      "name": "AppConfig",
+      "qualifiedName": "AppConfig",
+      "kind": "interface",
+      "path": "src/config.ts",
+      "range": {
+        "startLine": 8,
+        "endLine": 11
+      },
+      "signature": "export interface AppConfig",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "src/config.ts#loadConfig",
+      "name": "loadConfig",
+      "qualifiedName": "loadConfig",
+      "kind": "function",
+      "path": "src/config.ts",
+      "range": {
+        "startLine": 14,
+        "endLine": 17
+      },
+      "signature": "export function loadConfig(env: Record<string, string | undefined>): AppConfig",
+      "params": [
+        {
+          "name": "env",
+          "type": "Record<string, string | undefined>"
+        }
+      ],
+      "exported": true,
+      "returns": "AppConfig",
+      "docstring": "Validates environment variables and fails fast when one is missing."
+    },
+    {
+      "id": "src/index.ts#config",
+      "name": "config",
+      "qualifiedName": "config",
+      "kind": "constant",
+      "path": "src/index.ts",
+      "range": {
+        "startLine": 5,
+        "endLine": 5
+      },
+      "signature": "const config = loadConfig(process.env);",
+      "params": [],
+      "exported": false
+    },
+    {
+      "id": "src/index.ts#app",
+      "name": "app",
+      "qualifiedName": "app",
+      "kind": "constant",
+      "path": "src/index.ts",
+      "range": {
+        "startLine": 6,
+        "endLine": 6
+      },
+      "signature": "const app = createServer(config);",
+      "params": [],
+      "exported": false
+    },
+    {
+      "id": "src/legacy.js#path",
+      "name": "path",
+      "qualifiedName": "path",
+      "kind": "constant",
+      "path": "src/legacy.js",
+      "range": {
+        "startLine": 1,
+        "endLine": 1
+      },
+      "signature": "const path = require(\"node:path\");",
+      "params": [],
+      "exported": false
+    },
+    {
+      "id": "src/legacy.js#resolveAsset",
+      "name": "resolveAsset",
+      "qualifiedName": "resolveAsset",
+      "kind": "function",
+      "path": "src/legacy.js",
+      "range": {
+        "startLine": 4,
+        "endLine": 6
+      },
+      "signature": "function resolveAsset(name)",
+      "params": [
+        {
+          "name": "name"
+        }
+      ],
+      "exported": true
+    },
+    {
+      "id": "src/legacy.js#total",
+      "name": "total",
+      "qualifiedName": "total",
+      "kind": "function",
+      "path": "src/legacy.js",
+      "range": {
+        "startLine": 8,
+        "endLine": 10
+      },
+      "signature": "exports.total = function (items)",
+      "params": [
+        {
+          "name": "items"
+        }
+      ],
+      "exported": true
+    },
+    {
+      "id": "src/server.ts#createServer",
+      "name": "createServer",
+      "qualifiedName": "createServer",
+      "kind": "function",
+      "path": "src/server.ts",
+      "range": {
+        "startLine": 11,
+        "endLine": 30
+      },
+      "signature": "export function createServer(config: AppConfig)",
+      "params": [
+        {
+          "name": "config",
+          "type": "AppConfig"
+        }
+      ],
+      "exported": true,
+      "docstring": "Builds the HTTP app. Routes are registered here so tests can create a server\nwithout binding a port."
+    },
+    {
+      "id": "src/utils/math.ts#add",
+      "name": "add",
+      "qualifiedName": "add",
+      "kind": "function",
+      "path": "src/utils/math.ts",
+      "range": {
+        "startLine": 1,
+        "endLine": 5
+      },
+      "signature": "export function add(a: number, b: number): number;",
+      "params": [
+        {
+          "name": "a",
+          "type": "number"
+        },
+        {
+          "name": "b",
+          "type": "number"
+        }
+      ],
+      "exported": true,
+      "returns": "number"
+    },
+    {
+      "id": "src/utils/math.ts#MAX_SAFE",
+      "name": "MAX_SAFE",
+      "qualifiedName": "MAX_SAFE",
+      "kind": "constant",
+      "path": "src/utils/math.ts",
+      "range": {
+        "startLine": 7,
+        "endLine": 7
+      },
+      "signature": "export const MAX_SAFE = Number.MAX_SAFE_INTEGER;",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "src/utils/math.ts#clamp",
+      "name": "clamp",
+      "qualifiedName": "clamp",
+      "kind": "function",
+      "path": "src/utils/math.ts",
+      "range": {
+        "startLine": 10,
+        "endLine": 10
+      },
+      "signature": "const clamp = (value: number, min: number, max: number): number",
+      "params": [
+        {
+          "name": "value",
+          "type": "number"
+        },
+        {
+          "name": "min",
+          "type": "number"
+        },
+        {
+          "name": "max",
+          "type": "number"
+        }
+      ],
+      "exported": true,
+      "returns": "number",
+      "docstring": "Limits a value to the inclusive range [min, max].",
+      "defaultExport": true
+    },
+    {
+      "id": "src/utils/math.ts#sumAll",
+      "name": "sumAll",
+      "qualifiedName": "sumAll",
+      "kind": "function",
+      "path": "src/utils/math.ts",
+      "range": {
+        "startLine": 14,
+        "endLine": 16
+      },
+      "signature": "export async function sumAll(...values: number[]): Promise<number>",
+      "params": [
+        {
+          "name": "values",
+          "type": "number[]",
+          "rest": true
+        }
+      ],
+      "exported": true,
+      "returns": "Promise<number>",
+      "async": true
+    }
+  ],
+  "imports": [
+    {
+      "from": "src/auth/token.ts",
+      "specifier": "jsonwebtoken",
+      "line": 1,
+      "names": [
+        {
+          "imported": "default",
+          "local": "jwt"
+        }
+      ],
+      "kind": "import",
+      "external": "jsonwebtoken"
+    },
+    {
+      "from": "src/components/Button.tsx",
+      "specifier": "react",
+      "line": 1,
+      "names": [
+        {
+          "imported": "useState",
+          "local": "useState"
+        }
+      ],
+      "kind": "import",
+      "external": "react"
+    },
+    {
+      "from": "src/config.ts",
+      "specifier": "zod",
+      "line": 1,
+      "names": [
+        {
+          "imported": "z",
+          "local": "z"
+        }
+      ],
+      "kind": "import",
+      "external": "zod"
+    },
+    {
+      "from": "src/index.ts",
+      "specifier": "./server.js",
+      "line": 2,
+      "names": [
+        {
+          "imported": "createServer",
+          "local": "createServer"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/server.ts"
+    },
+    {
+      "from": "src/index.ts",
+      "specifier": "@/config",
+      "line": 3,
+      "names": [
+        {
+          "imported": "loadConfig",
+          "local": "loadConfig"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/config.ts"
+    },
+    {
+      "from": "src/legacy.js",
+      "specifier": "node:path",
+      "line": 1,
+      "names": [
+        {
+          "imported": "*",
+          "local": "path"
+        }
+      ],
+      "kind": "require",
+      "external": "node:path"
+    },
+    {
+      "from": "src/legacy.js",
+      "specifier": "./utils/math.js",
+      "line": 2,
+      "names": [
+        {
+          "imported": "add",
+          "local": "add"
+        }
+      ],
+      "kind": "require",
+      "resolved": "src/utils/math.ts"
+    },
+    {
+      "from": "src/server.ts",
+      "specifier": "express",
+      "line": 1,
+      "names": [
+        {
+          "imported": "default",
+          "local": "express"
+        },
+        {
+          "imported": "Request",
+          "local": "Request"
+        },
+        {
+          "imported": "Response",
+          "local": "Response"
+        }
+      ],
+      "kind": "import",
+      "external": "express"
+    },
+    {
+      "from": "src/server.ts",
+      "specifier": "./config.js",
+      "line": 2,
+      "names": [
+        {
+          "imported": "AppConfig",
+          "local": "AppConfig"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/config.ts"
+    },
+    {
+      "from": "src/server.ts",
+      "specifier": "./auth/token.js",
+      "line": 3,
+      "names": [
+        {
+          "imported": "TokenService",
+          "local": "TokenService"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/auth/token.ts"
+    },
+    {
+      "from": "src/server.ts",
+      "specifier": "./utils/index.js",
+      "line": 4,
+      "names": [
+        {
+          "imported": "*",
+          "local": "math"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/utils/index.ts"
+    },
+    {
+      "from": "src/server.ts",
+      "specifier": "@/utils",
+      "line": 5,
+      "names": [
+        {
+          "imported": "clamp",
+          "local": "clamp"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/utils/index.ts"
+    },
+    {
+      "from": "src/utils/index.ts",
+      "specifier": "./math.js",
+      "line": 1,
+      "names": [
+        {
+          "imported": "*",
+          "local": "*"
+        }
+      ],
+      "kind": "reexport",
+      "resolved": "src/utils/math.ts"
+    },
+    {
+      "from": "src/utils/index.ts",
+      "specifier": "./math.js",
+      "line": 2,
+      "names": [
+        {
+          "imported": "default",
+          "local": "clamp"
+        }
+      ],
+      "kind": "reexport",
+      "resolved": "src/utils/math.ts"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "specifier": "vitest",
+      "line": 1,
+      "names": [
+        {
+          "imported": "describe",
+          "local": "describe"
+        },
+        {
+          "imported": "expect",
+          "local": "expect"
+        },
+        {
+          "imported": "it",
+          "local": "it"
+        }
+      ],
+      "kind": "import",
+      "external": "vitest"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "specifier": "../src/utils/math.js",
+      "line": 2,
+      "names": [
+        {
+          "imported": "add",
+          "local": "add"
+        },
+        {
+          "imported": "sumAll",
+          "local": "sumAll"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/utils/math.ts"
+    }
+  ],
+  "calls": [
+    {
+      "from": "src/auth/token.ts#TokenService.issue",
+      "path": "src/auth/token.ts",
+      "line": 12,
+      "callee": "jwt.sign",
+      "name": "sign"
+    },
+    {
+      "from": "src/auth/token.ts#TokenService.verify",
+      "path": "src/auth/token.ts",
+      "line": 18,
+      "callee": "this.decode",
+      "name": "decode",
+      "resolved": "src/auth/token.ts#TokenService.decode"
+    },
+    {
+      "from": "src/auth/token.ts#TokenService.decode",
+      "path": "src/auth/token.ts",
+      "line": 26,
+      "callee": "jwt.verify",
+      "name": "verify"
+    },
+    {
+      "from": "src/auth/token.ts#TokenService.decode",
+      "path": "src/auth/token.ts",
+      "line": 26,
+      "callee": "token.replace",
+      "name": "replace"
+    },
+    {
+      "from": "src/auth/token.ts#TokenService.fromEnv",
+      "path": "src/auth/token.ts",
+      "line": 29,
+      "callee": "TokenService",
+      "name": "TokenService",
+      "isNew": true,
+      "resolved": "src/auth/token.ts#TokenService"
+    },
+    {
+      "from": "src/components/Button.tsx#Button",
+      "path": "src/components/Button.tsx",
+      "line": 9,
+      "callee": "useState",
+      "name": "useState"
+    },
+    {
+      "from": "src/components/Button.tsx#Button",
+      "path": "src/components/Button.tsx",
+      "line": 13,
+      "callee": "setCount",
+      "name": "setCount"
+    },
+    {
+      "from": "src/components/Button.tsx#Button",
+      "path": "src/components/Button.tsx",
+      "line": 14,
+      "callee": "onClick",
+      "name": "onClick"
+    },
+    {
+      "from": "src/config.ts#Schema",
+      "path": "src/config.ts",
+      "line": 3,
+      "callee": "z.object",
+      "name": "object"
+    },
+    {
+      "from": "src/config.ts#Schema",
+      "path": "src/config.ts",
+      "line": 4,
+      "callee": "<expr>.default",
+      "name": "default"
+    },
+    {
+      "from": "src/config.ts#Schema",
+      "path": "src/config.ts",
+      "line": 4,
+      "callee": "z.coerce.number",
+      "name": "number"
+    },
+    {
+      "from": "src/config.ts#Schema",
+      "path": "src/config.ts",
+      "line": 5,
+      "callee": "<expr>.min",
+      "name": "min"
+    },
+    {
+      "from": "src/config.ts#Schema",
+      "path": "src/config.ts",
+      "line": 5,
+      "callee": "z.string",
+      "name": "string"
+    },
+    {
+      "from": "src/config.ts#loadConfig",
+      "path": "src/config.ts",
+      "line": 15,
+      "callee": "Schema.parse",
+      "name": "parse"
+    },
+    {
+      "from": "src/index.ts#config",
+      "path": "src/index.ts",
+      "line": 5,
+      "callee": "loadConfig",
+      "name": "loadConfig",
+      "resolved": "src/config.ts#loadConfig"
+    },
+    {
+      "from": "src/index.ts#app",
+      "path": "src/index.ts",
+      "line": 6,
+      "callee": "createServer",
+      "name": "createServer",
+      "resolved": "src/server.ts#createServer"
+    },
+    {
+      "from": "src/index.ts",
+      "path": "src/index.ts",
+      "line": 8,
+      "callee": "app.listen",
+      "name": "listen"
+    },
+    {
+      "from": "src/index.ts",
+      "path": "src/index.ts",
+      "line": 9,
+      "callee": "console.log",
+      "name": "log"
+    },
+    {
+      "from": "src/legacy.js#resolveAsset",
+      "path": "src/legacy.js",
+      "line": 5,
+      "callee": "path.join",
+      "name": "join"
+    },
+    {
+      "from": "src/legacy.js#total",
+      "path": "src/legacy.js",
+      "line": 9,
+      "callee": "add",
+      "name": "add",
+      "resolved": "src/utils/math.ts#add"
+    },
+    {
+      "from": "src/legacy.js#total",
+      "path": "src/legacy.js",
+      "line": 9,
+      "callee": "items.reduce",
+      "name": "reduce"
+    },
+    {
+      "from": "src/legacy.js",
+      "path": "src/legacy.js",
+      "line": 15,
+      "callee": "console.log",
+      "name": "log"
+    },
+    {
+      "from": "src/legacy.js",
+      "path": "src/legacy.js",
+      "line": 15,
+      "callee": "resolveAsset",
+      "name": "resolveAsset",
+      "resolved": "src/legacy.js#resolveAsset"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 12,
+      "callee": "express",
+      "name": "express"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 13,
+      "callee": "TokenService",
+      "name": "TokenService",
+      "isNew": true,
+      "resolved": "src/auth/token.ts#TokenService"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 15,
+      "callee": "app.get",
+      "name": "get"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 16,
+      "callee": "Number",
+      "name": "Number"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 17,
+      "callee": "Number",
+      "name": "Number"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 18,
+      "callee": "clamp",
+      "name": "clamp",
+      "resolved": "src/utils/math.ts#clamp"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 18,
+      "callee": "math.add",
+      "name": "add",
+      "resolved": "src/utils/math.ts#add"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 18,
+      "callee": "res.json",
+      "name": "json"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 21,
+      "callee": "app.post",
+      "name": "post"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 22,
+      "callee": "String",
+      "name": "String"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 22,
+      "callee": "tokens.verify",
+      "name": "verify",
+      "receiver": "TokenService",
+      "resolved": "src/auth/token.ts#TokenService.verify"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 23,
+      "callee": "<expr>.end",
+      "name": "end"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 23,
+      "callee": "res.status",
+      "name": "status"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 26,
+      "callee": "res.json",
+      "name": "json"
+    },
+    {
+      "from": "src/server.ts#createServer",
+      "path": "src/server.ts",
+      "line": 26,
+      "callee": "tokens.issue",
+      "name": "issue",
+      "receiver": "TokenService",
+      "resolved": "src/auth/token.ts#TokenService.issue"
+    },
+    {
+      "from": "src/utils/math.ts#clamp",
+      "path": "src/utils/math.ts",
+      "line": 10,
+      "callee": "Math.max",
+      "name": "max"
+    },
+    {
+      "from": "src/utils/math.ts#clamp",
+      "path": "src/utils/math.ts",
+      "line": 10,
+      "callee": "Math.min",
+      "name": "min"
+    },
+    {
+      "from": "src/utils/math.ts#sumAll",
+      "path": "src/utils/math.ts",
+      "line": 15,
+      "callee": "add",
+      "name": "add",
+      "resolved": "src/utils/math.ts#add"
+    },
+    {
+      "from": "src/utils/math.ts#sumAll",
+      "path": "src/utils/math.ts",
+      "line": 15,
+      "callee": "values.reduce",
+      "name": "reduce"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 4,
+      "callee": "describe",
+      "name": "describe"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 5,
+      "callee": "it",
+      "name": "it"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 6,
+      "callee": "<expr>.toBe",
+      "name": "toBe"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 6,
+      "callee": "add",
+      "name": "add",
+      "resolved": "src/utils/math.ts#add"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 6,
+      "callee": "expect",
+      "name": "expect"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 9,
+      "callee": "it",
+      "name": "it"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 10,
+      "callee": "<expr>.toBe",
+      "name": "toBe"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 10,
+      "callee": "expect",
+      "name": "expect"
+    },
+    {
+      "from": "tests/math.test.ts",
+      "path": "tests/math.test.ts",
+      "line": 10,
+      "callee": "sumAll",
+      "name": "sumAll",
+      "resolved": "src/utils/math.ts#sumAll"
+    }
+  ],
+  "tests": {
+    "src/utils/math.ts": [
+      "tests/math.test.ts"
+    ],
+    "src/utils/math.ts#add": [
+      "tests/math.test.ts"
+    ],
+    "src/utils/math.ts#sumAll": [
+      "tests/math.test.ts"
+    ]
+  },
+  "history": {},
+  "warnings": [],
+  "repo": {
+    "name": "js-app",
+    "isGit": false
+  }
+}

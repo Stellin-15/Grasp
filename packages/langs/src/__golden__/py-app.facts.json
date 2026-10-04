@@ -1,0 +1,895 @@
+{
+  "schemaVersion": 1,
+  "toolVersion": "test",
+  "files": [
+    {
+      "path": ".gitlab-ci.yml",
+      "language": "YAML",
+      "role": "config",
+      "size": 535,
+      "lines": 35,
+      "hash": "1cfd1bf2e4787d1d",
+      "parsed": false
+    },
+    {
+      "path": ".pre-commit-config.yaml",
+      "language": "YAML",
+      "role": "config",
+      "size": 229,
+      "lines": 10,
+      "hash": "dd02fb8c106acfe6",
+      "parsed": false
+    },
+    {
+      "path": ".python-version",
+      "language": "Other",
+      "role": "config",
+      "size": 5,
+      "lines": 1,
+      "hash": "7b55f8e67b5623c4",
+      "parsed": false
+    },
+    {
+      "path": "pyproject.toml",
+      "language": "TOML",
+      "role": "config",
+      "size": 517,
+      "lines": 30,
+      "hash": "66148ab35a4d3893",
+      "parsed": false
+    },
+    {
+      "path": "requirements.txt",
+      "language": "Text",
+      "role": "config",
+      "size": 110,
+      "lines": 5,
+      "hash": "ded85b174331b167",
+      "parsed": false
+    },
+    {
+      "path": "src/shop/__init__.py",
+      "language": "Python",
+      "role": "source",
+      "size": 149,
+      "lines": 5,
+      "hash": "81334fde20c49740",
+      "parsed": true,
+      "extractor": "python@1",
+      "description": "Shop service: orders, billing, and the HTTP API."
+    },
+    {
+      "path": "src/shop/main.py",
+      "language": "Python",
+      "role": "source",
+      "size": 521,
+      "lines": 24,
+      "hash": "2edcb8d7e5d21133",
+      "parsed": true,
+      "extractor": "python@1",
+      "isScript": true
+    },
+    {
+      "path": "src/shop/models.py",
+      "language": "Python",
+      "role": "source",
+      "size": 629,
+      "lines": 31,
+      "hash": "c4bea7b14ef4ab5b",
+      "parsed": true,
+      "extractor": "python@1"
+    },
+    {
+      "path": "src/shop/services/__init__.py",
+      "language": "Python",
+      "role": "source",
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c14",
+      "parsed": true,
+      "extractor": "python@1"
+    },
+    {
+      "path": "src/shop/services/billing.py",
+      "language": "Python",
+      "role": "source",
+      "size": 1352,
+      "lines": 47,
+      "hash": "fb42f7605951c607",
+      "parsed": true,
+      "extractor": "python@1",
+      "description": "Billing: turns orders into invoices and charges them."
+    },
+    {
+      "path": "tests/test_billing.py",
+      "language": "Python",
+      "role": "test",
+      "size": 432,
+      "lines": 15,
+      "hash": "993d0b04736a84fe",
+      "parsed": true,
+      "extractor": "python@1"
+    }
+  ],
+  "symbols": [
+    {
+      "id": "src/shop/main.py#app",
+      "name": "app",
+      "qualifiedName": "app",
+      "kind": "variable",
+      "path": "src/shop/main.py",
+      "range": {
+        "startLine": 9,
+        "endLine": 9
+      },
+      "signature": "app = FastAPI(title=\"shop\")",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "src/shop/main.py#charge_order",
+      "name": "charge_order",
+      "qualifiedName": "charge_order",
+      "kind": "function",
+      "path": "src/shop/main.py",
+      "range": {
+        "startLine": 12,
+        "endLine": 16
+      },
+      "signature": "async def charge_order(order_id: int, total_cents: int) -> dict",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "int"
+        },
+        {
+          "name": "total_cents",
+          "type": "int"
+        }
+      ],
+      "exported": true,
+      "returns": "dict",
+      "async": true,
+      "decorators": [
+        "@app.post(\"/orders/{order_id}/charge\")"
+      ]
+    },
+    {
+      "id": "src/shop/main.py#run",
+      "name": "run",
+      "qualifiedName": "run",
+      "kind": "function",
+      "path": "src/shop/main.py",
+      "range": {
+        "startLine": 19,
+        "endLine": 20
+      },
+      "signature": "def run() -> None",
+      "params": [],
+      "exported": true,
+      "returns": "None"
+    },
+    {
+      "id": "src/shop/models.py#DEFAULT_CURRENCY",
+      "name": "DEFAULT_CURRENCY",
+      "qualifiedName": "DEFAULT_CURRENCY",
+      "kind": "constant",
+      "path": "src/shop/models.py",
+      "range": {
+        "startLine": 6,
+        "endLine": 6
+      },
+      "signature": "DEFAULT_CURRENCY = \"USD\"",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "src/shop/models.py#Base",
+      "name": "Base",
+      "qualifiedName": "Base",
+      "kind": "class",
+      "path": "src/shop/models.py",
+      "range": {
+        "startLine": 9,
+        "endLine": 10
+      },
+      "signature": "class Base(DeclarativeBase)",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "src/shop/models.py#Order",
+      "name": "Order",
+      "qualifiedName": "Order",
+      "kind": "class",
+      "path": "src/shop/models.py",
+      "range": {
+        "startLine": 13,
+        "endLine": 19
+      },
+      "signature": "class Order(Base)",
+      "params": [],
+      "exported": true,
+      "docstring": "A customer order persisted in the `orders` table."
+    },
+    {
+      "id": "src/shop/models.py#Invoice",
+      "name": "Invoice",
+      "qualifiedName": "Invoice",
+      "kind": "class",
+      "path": "src/shop/models.py",
+      "range": {
+        "startLine": 22,
+        "endLine": 31
+      },
+      "signature": "class Invoice",
+      "params": [],
+      "exported": true,
+      "decorators": [
+        "@dataclass"
+      ]
+    },
+    {
+      "id": "src/shop/models.py#Invoice.is_free",
+      "name": "is_free",
+      "qualifiedName": "Invoice.is_free",
+      "kind": "method",
+      "path": "src/shop/models.py",
+      "range": {
+        "startLine": 29,
+        "endLine": 31
+      },
+      "signature": "def is_free(self) -> bool",
+      "params": [],
+      "exported": true,
+      "returns": "bool",
+      "decorators": [
+        "@property"
+      ],
+      "parentId": "src/shop/models.py#Invoice"
+    },
+    {
+      "id": "src/shop/services/billing.py#log",
+      "name": "log",
+      "qualifiedName": "log",
+      "kind": "variable",
+      "path": "src/shop/services/billing.py",
+      "range": {
+        "startLine": 10,
+        "endLine": 10
+      },
+      "signature": "log = logging.getLogger(__name__)",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "src/shop/services/billing.py#BillingService",
+      "name": "BillingService",
+      "qualifiedName": "BillingService",
+      "kind": "class",
+      "path": "src/shop/services/billing.py",
+      "range": {
+        "startLine": 13,
+        "endLine": 40
+      },
+      "signature": "class BillingService",
+      "params": [],
+      "exported": true,
+      "docstring": "Creates invoices and talks to the payment provider."
+    },
+    {
+      "id": "src/shop/services/billing.py#BillingService.__init__",
+      "name": "__init__",
+      "qualifiedName": "BillingService.__init__",
+      "kind": "method",
+      "path": "src/shop/services/billing.py",
+      "range": {
+        "startLine": 16,
+        "endLine": 18
+      },
+      "signature": "def __init__(self, provider, *, retries: int = 3)",
+      "params": [
+        {
+          "name": "provider"
+        },
+        {
+          "name": "retries",
+          "type": "int",
+          "defaultValue": "3",
+          "optional": true
+        }
+      ],
+      "exported": true,
+      "parentId": "src/shop/services/billing.py#BillingService"
+    },
+    {
+      "id": "src/shop/services/billing.py#BillingService.invoice_for",
+      "name": "invoice_for",
+      "qualifiedName": "BillingService.invoice_for",
+      "kind": "method",
+      "path": "src/shop/services/billing.py",
+      "range": {
+        "startLine": 20,
+        "endLine": 28
+      },
+      "signature": "def invoice_for(self, order: Order) -> Invoice",
+      "params": [
+        {
+          "name": "order",
+          "type": "Order"
+        }
+      ],
+      "exported": true,
+      "returns": "Invoice",
+      "docstring": "Builds an invoice. Amounts are converted from cents.\n\nRaises:\n    ValueError: if the order total is negative.",
+      "parentId": "src/shop/services/billing.py#BillingService"
+    },
+    {
+      "id": "src/shop/services/billing.py#BillingService.charge",
+      "name": "charge",
+      "qualifiedName": "BillingService.charge",
+      "kind": "method",
+      "path": "src/shop/services/billing.py",
+      "range": {
+        "startLine": 30,
+        "endLine": 36
+      },
+      "signature": "async def charge(self, order: Order) -> bool",
+      "params": [
+        {
+          "name": "order",
+          "type": "Order"
+        }
+      ],
+      "exported": true,
+      "returns": "bool",
+      "async": true,
+      "parentId": "src/shop/services/billing.py#BillingService"
+    },
+    {
+      "id": "src/shop/services/billing.py#BillingService._fee",
+      "name": "_fee",
+      "qualifiedName": "BillingService._fee",
+      "kind": "method",
+      "path": "src/shop/services/billing.py",
+      "range": {
+        "startLine": 38,
+        "endLine": 40
+      },
+      "signature": "def _fee(amount: Decimal) -> Decimal",
+      "params": [
+        {
+          "name": "amount",
+          "type": "Decimal"
+        }
+      ],
+      "exported": false,
+      "returns": "Decimal",
+      "decorators": [
+        "@staticmethod"
+      ],
+      "parentId": "src/shop/services/billing.py#BillingService"
+    },
+    {
+      "id": "src/shop/services/billing.py#charge",
+      "name": "charge",
+      "qualifiedName": "charge",
+      "kind": "function",
+      "path": "src/shop/services/billing.py",
+      "range": {
+        "startLine": 43,
+        "endLine": 47
+      },
+      "signature": "def charge(service: BillingService, order: Order) -> bool",
+      "params": [
+        {
+          "name": "service",
+          "type": "BillingService"
+        },
+        {
+          "name": "order",
+          "type": "Order"
+        }
+      ],
+      "exported": true,
+      "returns": "bool",
+      "docstring": "Synchronous helper for scripts."
+    },
+    {
+      "id": "tests/test_billing.py#test_invoice_converts_cents",
+      "name": "test_invoice_converts_cents",
+      "qualifiedName": "test_invoice_converts_cents",
+      "kind": "function",
+      "path": "tests/test_billing.py",
+      "range": {
+        "startLine": 7,
+        "endLine": 10
+      },
+      "signature": "def test_invoice_converts_cents()",
+      "params": [],
+      "exported": true
+    },
+    {
+      "id": "tests/test_billing.py#test_negative_total_rejected",
+      "name": "test_negative_total_rejected",
+      "qualifiedName": "test_negative_total_rejected",
+      "kind": "function",
+      "path": "tests/test_billing.py",
+      "range": {
+        "startLine": 13,
+        "endLine": 15
+      },
+      "signature": "def test_negative_total_rejected()",
+      "params": [],
+      "exported": true
+    }
+  ],
+  "imports": [
+    {
+      "from": "src/shop/__init__.py",
+      "specifier": ".services.billing",
+      "line": 3,
+      "names": [
+        {
+          "imported": "BillingService",
+          "local": "BillingService"
+        },
+        {
+          "imported": "charge",
+          "local": "charge"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/shop/services/billing.py"
+    },
+    {
+      "from": "src/shop/main.py",
+      "specifier": "os",
+      "line": 1,
+      "names": [
+        {
+          "imported": "*",
+          "local": "os"
+        }
+      ],
+      "kind": "import",
+      "external": "python:os"
+    },
+    {
+      "from": "src/shop/main.py",
+      "specifier": "uvicorn",
+      "line": 3,
+      "names": [
+        {
+          "imported": "*",
+          "local": "uvicorn"
+        }
+      ],
+      "kind": "import",
+      "external": "uvicorn"
+    },
+    {
+      "from": "src/shop/main.py",
+      "specifier": "fastapi",
+      "line": 4,
+      "names": [
+        {
+          "imported": "FastAPI",
+          "local": "FastAPI"
+        }
+      ],
+      "kind": "import",
+      "external": "fastapi"
+    },
+    {
+      "from": "src/shop/main.py",
+      "specifier": "shop",
+      "line": 6,
+      "names": [
+        {
+          "imported": "BillingService",
+          "local": "BillingService"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/shop/__init__.py"
+    },
+    {
+      "from": "src/shop/main.py",
+      "specifier": "shop.models",
+      "line": 7,
+      "names": [
+        {
+          "imported": "Order",
+          "local": "Order"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/shop/models.py"
+    },
+    {
+      "from": "src/shop/models.py",
+      "specifier": "dataclasses",
+      "line": 1,
+      "names": [
+        {
+          "imported": "dataclass",
+          "local": "dataclass"
+        },
+        {
+          "imported": "field",
+          "local": "field"
+        }
+      ],
+      "kind": "import",
+      "external": "python:dataclasses"
+    },
+    {
+      "from": "src/shop/models.py",
+      "specifier": "decimal",
+      "line": 2,
+      "names": [
+        {
+          "imported": "Decimal",
+          "local": "Decimal"
+        }
+      ],
+      "kind": "import",
+      "external": "python:decimal"
+    },
+    {
+      "from": "src/shop/models.py",
+      "specifier": "sqlalchemy.orm",
+      "line": 4,
+      "names": [
+        {
+          "imported": "DeclarativeBase",
+          "local": "DeclarativeBase"
+        },
+        {
+          "imported": "Mapped",
+          "local": "Mapped"
+        },
+        {
+          "imported": "mapped_column",
+          "local": "mapped_column"
+        }
+      ],
+      "kind": "import",
+      "external": "sqlalchemy"
+    },
+    {
+      "from": "src/shop/services/billing.py",
+      "specifier": "logging",
+      "line": 5,
+      "names": [
+        {
+          "imported": "*",
+          "local": "logging"
+        }
+      ],
+      "kind": "import",
+      "external": "python:logging"
+    },
+    {
+      "from": "src/shop/services/billing.py",
+      "specifier": "decimal",
+      "line": 6,
+      "names": [
+        {
+          "imported": "Decimal",
+          "local": "Decimal"
+        }
+      ],
+      "kind": "import",
+      "external": "python:decimal"
+    },
+    {
+      "from": "src/shop/services/billing.py",
+      "specifier": "..models",
+      "line": 8,
+      "names": [
+        {
+          "imported": "Invoice",
+          "local": "Invoice"
+        },
+        {
+          "imported": "Order",
+          "local": "Order"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/shop/models.py"
+    },
+    {
+      "from": "tests/test_billing.py",
+      "specifier": "pytest",
+      "line": 1,
+      "names": [
+        {
+          "imported": "*",
+          "local": "pytest"
+        }
+      ],
+      "kind": "import",
+      "external": "pytest"
+    },
+    {
+      "from": "tests/test_billing.py",
+      "specifier": "shop.models",
+      "line": 3,
+      "names": [
+        {
+          "imported": "Order",
+          "local": "Order"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/shop/models.py"
+    },
+    {
+      "from": "tests/test_billing.py",
+      "specifier": "shop.services.billing",
+      "line": 4,
+      "names": [
+        {
+          "imported": "BillingService",
+          "local": "BillingService"
+        }
+      ],
+      "kind": "import",
+      "resolved": "src/shop/services/billing.py"
+    }
+  ],
+  "calls": [
+    {
+      "from": "src/shop/main.py#app",
+      "path": "src/shop/main.py",
+      "line": 9,
+      "callee": "FastAPI",
+      "name": "FastAPI"
+    },
+    {
+      "from": "src/shop/main.py",
+      "path": "src/shop/main.py",
+      "line": 12,
+      "callee": "app.post",
+      "name": "post",
+      "receiver": "FastAPI"
+    },
+    {
+      "from": "src/shop/main.py#charge_order",
+      "path": "src/shop/main.py",
+      "line": 14,
+      "callee": "BillingService",
+      "name": "BillingService",
+      "resolved": "src/shop/services/billing.py#BillingService"
+    },
+    {
+      "from": "src/shop/main.py#charge_order",
+      "path": "src/shop/main.py",
+      "line": 15,
+      "callee": "Order",
+      "name": "Order",
+      "resolved": "src/shop/models.py#Order"
+    },
+    {
+      "from": "src/shop/main.py#charge_order",
+      "path": "src/shop/main.py",
+      "line": 15,
+      "callee": "service.charge",
+      "name": "charge",
+      "receiver": "BillingService",
+      "resolved": "src/shop/services/billing.py#BillingService.charge"
+    },
+    {
+      "from": "src/shop/main.py#run",
+      "path": "src/shop/main.py",
+      "line": 20,
+      "callee": "int",
+      "name": "int"
+    },
+    {
+      "from": "src/shop/main.py#run",
+      "path": "src/shop/main.py",
+      "line": 20,
+      "callee": "os.environ.get",
+      "name": "get"
+    },
+    {
+      "from": "src/shop/main.py#run",
+      "path": "src/shop/main.py",
+      "line": 20,
+      "callee": "uvicorn.run",
+      "name": "run"
+    },
+    {
+      "from": "src/shop/main.py",
+      "path": "src/shop/main.py",
+      "line": 24,
+      "callee": "run",
+      "name": "run",
+      "resolved": "src/shop/main.py#run"
+    },
+    {
+      "from": "src/shop/models.py#Order",
+      "path": "src/shop/models.py",
+      "line": 18,
+      "callee": "mapped_column",
+      "name": "mapped_column"
+    },
+    {
+      "from": "src/shop/models.py#Invoice",
+      "path": "src/shop/models.py",
+      "line": 27,
+      "callee": "field",
+      "name": "field"
+    },
+    {
+      "from": "src/shop/services/billing.py#log",
+      "path": "src/shop/services/billing.py",
+      "line": 10,
+      "callee": "logging.getLogger",
+      "name": "getLogger"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService.invoice_for",
+      "path": "src/shop/services/billing.py",
+      "line": 27,
+      "callee": "ValueError",
+      "name": "ValueError"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService.invoice_for",
+      "path": "src/shop/services/billing.py",
+      "line": 28,
+      "callee": "Decimal",
+      "name": "Decimal"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService.invoice_for",
+      "path": "src/shop/services/billing.py",
+      "line": 28,
+      "callee": "Invoice",
+      "name": "Invoice",
+      "resolved": "src/shop/models.py#Invoice"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService.charge",
+      "path": "src/shop/services/billing.py",
+      "line": 31,
+      "callee": "self.invoice_for",
+      "name": "invoice_for",
+      "resolved": "src/shop/services/billing.py#BillingService.invoice_for"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService.charge",
+      "path": "src/shop/services/billing.py",
+      "line": 32,
+      "callee": "range",
+      "name": "range"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService.charge",
+      "path": "src/shop/services/billing.py",
+      "line": 33,
+      "callee": "self.provider.pay",
+      "name": "pay"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService.charge",
+      "path": "src/shop/services/billing.py",
+      "line": 35,
+      "callee": "log.warning",
+      "name": "warning"
+    },
+    {
+      "from": "src/shop/services/billing.py#BillingService._fee",
+      "path": "src/shop/services/billing.py",
+      "line": 40,
+      "callee": "Decimal",
+      "name": "Decimal"
+    },
+    {
+      "from": "src/shop/services/billing.py#charge",
+      "path": "src/shop/services/billing.py",
+      "line": 47,
+      "callee": "asyncio.run",
+      "name": "run"
+    },
+    {
+      "from": "src/shop/services/billing.py#charge",
+      "path": "src/shop/services/billing.py",
+      "line": 47,
+      "callee": "service.charge",
+      "name": "charge"
+    },
+    {
+      "from": "tests/test_billing.py#test_invoice_converts_cents",
+      "path": "tests/test_billing.py",
+      "line": 8,
+      "callee": "BillingService",
+      "name": "BillingService",
+      "resolved": "src/shop/services/billing.py#BillingService"
+    },
+    {
+      "from": "tests/test_billing.py#test_invoice_converts_cents",
+      "path": "tests/test_billing.py",
+      "line": 9,
+      "callee": "Order",
+      "name": "Order",
+      "resolved": "src/shop/models.py#Order"
+    },
+    {
+      "from": "tests/test_billing.py#test_invoice_converts_cents",
+      "path": "tests/test_billing.py",
+      "line": 9,
+      "callee": "service.invoice_for",
+      "name": "invoice_for",
+      "receiver": "BillingService",
+      "resolved": "src/shop/services/billing.py#BillingService.invoice_for"
+    },
+    {
+      "from": "tests/test_billing.py#test_invoice_converts_cents",
+      "path": "tests/test_billing.py",
+      "line": 10,
+      "callee": "str",
+      "name": "str"
+    },
+    {
+      "from": "tests/test_billing.py#test_negative_total_rejected",
+      "path": "tests/test_billing.py",
+      "line": 14,
+      "callee": "pytest.raises",
+      "name": "raises"
+    },
+    {
+      "from": "tests/test_billing.py#test_negative_total_rejected",
+      "path": "tests/test_billing.py",
+      "line": 15,
+      "callee": "<expr>.invoice_for",
+      "name": "invoice_for",
+      "receiver": "BillingService",
+      "resolved": "src/shop/services/billing.py#BillingService.invoice_for"
+    },
+    {
+      "from": "tests/test_billing.py#test_negative_total_rejected",
+      "path": "tests/test_billing.py",
+      "line": 15,
+      "callee": "BillingService",
+      "name": "BillingService",
+      "resolved": "src/shop/services/billing.py#BillingService"
+    },
+    {
+      "from": "tests/test_billing.py#test_negative_total_rejected",
+      "path": "tests/test_billing.py",
+      "line": 15,
+      "callee": "Order",
+      "name": "Order",
+      "resolved": "src/shop/models.py#Order"
+    }
+  ],
+  "tests": {
+    "src/shop/models.py": [
+      "tests/test_billing.py"
+    ],
+    "src/shop/models.py#Order": [
+      "tests/test_billing.py"
+    ],
+    "src/shop/services/billing.py": [
+      "tests/test_billing.py"
+    ],
+    "src/shop/services/billing.py#BillingService": [
+      "tests/test_billing.py"
+    ],
+    "src/shop/services/billing.py#BillingService.invoice_for": [
+      "tests/test_billing.py"
+    ]
+  },
+  "history": {},
+  "warnings": [],
+  "repo": {
+    "name": "py-app",
+    "isGit": false
+  }
+}

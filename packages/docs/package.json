@@ -19,5 +19,8 @@
     "@grasp/core": "workspace:*",
     "@grasp/infra": "workspace:*",
     "marked": "18.0.14"
+  },
+  "devDependencies": {
+    "@grasp/langs": "workspace:*"
   }
 }

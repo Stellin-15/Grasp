@@ -89,6 +89,10 @@ importers:
       marked:
         specifier: 18.0.14
         version: 18.0.14
+    devDependencies:
+      '@grasp/langs':
+        specifier: workspace:*
+        version: link:../langs
 
   packages/infra:
     dependencies:

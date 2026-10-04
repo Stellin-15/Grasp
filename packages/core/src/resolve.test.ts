@@ -92,6 +92,13 @@ describe("Linker", () => {
     );
   });
 
+  it("uses receiver hints for methods called on locally constructed objects", () => {
+    const c = { ...call("app.ts", "app.ts#run", "calc.twice"), receiver: "Calc" };
+    expect(linker.resolveCall(c)).toBe("lib/math.ts#Calc.twice");
+    const chained = { ...call("app.ts", "app.ts#run", "<expr>.twice"), receiver: "Calc" };
+    expect(linker.resolveCall(chained)).toBe("lib/math.ts#Calc.twice");
+  });
+
   it("leaves unknown and dynamic calls unresolved", () => {
     expect(linker.resolveCall(call("app.ts", "app.ts#run", "console.log"))).toBeUndefined();
     expect(linker.resolveCall(call("app.ts", "app.ts#run", "a.b.c"))).toBeUndefined();

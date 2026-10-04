@@ -107,6 +107,11 @@ export class Linker {
       if (b && b.imported !== "*") return this.findExport(b.file, b.imported)?.id;
       return undefined;
     }
+    if (call.receiver) {
+      const cls = this.resolveCall({ ...call, callee: call.receiver, receiver: undefined });
+      const hit = cls ? this.memberOf(this.byId.get(cls), call.name)?.id : undefined;
+      if (hit) return hit;
+    }
     if (parts.length !== 2) return undefined;
     const [head = "", member = ""] = parts;
     if (head === "this" || head === "self" || head === "cls") {

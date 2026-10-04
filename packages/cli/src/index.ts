@@ -10,6 +10,7 @@ import {
   showCommand,
   stackCommand,
 } from "./commands.js";
+import { docsCheckCommand, explainCommand } from "./explain-cli.js";
 import { VERSION } from "./version.js";
 
 export { VERSION };
@@ -42,6 +43,31 @@ function withCommon(cmd: Command): Command {
     )
     .option("--in-repo", "store output in <repo>/.grasp instead (for maintainers who commit it)")
     .option("--no-git", "ignore git: no history, list files from disk");
+}
+
+/** Options shared by every command that talks to Claude Code. */
+function withExplain(cmd: Command): Command {
+  return cmd
+    .addOption(
+      new Option("--for <audience>", "who the explanations are for")
+        .choices(["beginner", "dev", "reviewer"])
+        .default("dev"),
+    )
+    .addOption(
+      new Option(
+        "--depth <depth>",
+        "overview: folders and repo; file: plus files; symbol: plus every function's logic",
+      )
+        .choices(["overview", "file", "symbol", "logic"])
+        .default("symbol"),
+    )
+    .option("--dry-run", "show what would be explained and the estimated cost, then stop")
+    .option("--model <model>", "Claude model alias or id (default: your Claude Code default)")
+    .option("--concurrency <n>", "parallel Claude Code calls", "4")
+    .option("--max-units <n>", "stop after this many new explanations")
+    .option("--max-cost <usd>", "stop once reported cost reaches this many US dollars")
+    .option("--include-tests", "also explain test files")
+    .option("-y, --yes", "do not ask for confirmation on large runs");
 }
 
 export function createProgram(): Command {
@@ -91,7 +117,30 @@ export function createProgram(): Command {
     .addOption(new Option("--format <format>", "md, html, or all").default("all"))
     .option("--no-history", "skip git blame (faster on very large repos)")
     .option("--history-limit <n>", "max files to read history for", "2000")
+    .option(
+      "--explain",
+      "have Claude Code explain every function, file, and folder (sends code to Claude)",
+    )
     .action(run(docsBuildCommand));
+  withExplain(docs.commands.find((c) => c.name() === "build") as Command);
+
+  withExplain(withCommon(docs.command("check").argument("[path]", "repository", ".")))
+    .description("completeness and freshness of explanations; no model calls")
+    .option("--strict", "exit with code 1 unless everything is explained and current")
+    .action(run(docsCheckCommand));
+
+  withExplain(
+    withCommon(
+      program
+        .command("explain")
+        .argument("<query>", "symbol, Class.method, file path, or path#Symbol")
+        .argument("[path]", "repository", "."),
+    ),
+  )
+    .description(
+      "have Claude Code explain one function or file now, step by step, with line citations",
+    )
+    .action(run(explainCommand));
 
   return program;
 }

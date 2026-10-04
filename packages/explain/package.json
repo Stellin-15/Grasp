@@ -1,8 +1,8 @@
 {
-  "name": "@grasp/docs",
+  "name": "@grasp/explain",
   "version": "0.0.0",
   "private": true,
-  "description": "Reports and static reference docs in Markdown, JSON, and HTML.",
+  "description": "LLM-written, citation-verified explanations of code, with Claude Code as the default backend.",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -15,11 +15,7 @@
     "dist"
   ],
   "dependencies": {
-    "@grasp/contribute": "workspace:*",
-    "@grasp/core": "workspace:*",
-    "@grasp/explain": "workspace:*",
-    "@grasp/infra": "workspace:*",
-    "marked": "18.0.14"
+    "@grasp/core": "workspace:*"
   },
   "devDependencies": {
     "@grasp/langs": "workspace:*"

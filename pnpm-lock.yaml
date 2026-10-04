@@ -47,6 +47,9 @@ importers:
       '@grasp/docs':
         specifier: workspace:*
         version: link:../docs
+      '@grasp/explain':
+        specifier: workspace:*
+        version: link:../explain
       '@grasp/infra':
         specifier: workspace:*
         version: link:../infra
@@ -83,12 +86,25 @@ importers:
       '@grasp/core':
         specifier: workspace:*
         version: link:../core
+      '@grasp/explain':
+        specifier: workspace:*
+        version: link:../explain
       '@grasp/infra':
         specifier: workspace:*
         version: link:../infra
       marked:
         specifier: 18.0.14
         version: 18.0.14
+    devDependencies:
+      '@grasp/langs':
+        specifier: workspace:*
+        version: link:../langs
+
+  packages/explain:
+    dependencies:
+      '@grasp/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@grasp/langs':
         specifier: workspace:*

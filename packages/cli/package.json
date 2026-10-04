@@ -21,6 +21,7 @@
     "@grasp/contribute": "workspace:*",
     "@grasp/core": "workspace:*",
     "@grasp/docs": "workspace:*",
+    "@grasp/explain": "workspace:*",
     "@grasp/infra": "workspace:*",
     "@grasp/langs": "workspace:*",
     "commander": "15.0.0",

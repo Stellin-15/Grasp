@@ -1,3 +1,4 @@
+import { classifyFile, detectLanguage } from "@grasp/core";
 import { parse as parseToml } from "smol-toml";
 import { normalizePypi } from "./catalog.js";
 import { asRecord, asString, basename, escapeRegex, isForeign, parseYaml } from "./text.js";
@@ -283,7 +284,12 @@ export async function readManifests(repo: RepoView, warnings: string[]): Promise
     const text = await repo.readText(path);
     if (text === undefined) continue;
     try {
-      out.push(...parser(path, text.replace(/\r\n/g, "\n"), warnings));
+      const deps = parser(path, text.replace(/\r\n/g, "\n"), warnings);
+      // Manifests inside test folders declare test tooling or sample projects, never runtime needs.
+      if (classifyFile(path, detectLanguage(path)) === "test") {
+        for (const d of deps) if (d.scope === "runtime") d.scope = "dev";
+      }
+      out.push(...deps);
     } catch (err) {
       warnings.push(`${path}: could not read dependencies (${(err as Error).message})`);
     }

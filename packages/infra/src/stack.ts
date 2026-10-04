@@ -1,6 +1,6 @@
 import type { ImportFact } from "@grasp/core";
 import { parse as parseToml } from "smol-toml";
-import { CATALOG, matchesPackage, pythonModulesFor } from "./catalog.js";
+import { CATALOG, matchesPackage, normalizePypi, pythonModulesFor } from "./catalog.js";
 import { lockedKey, readLockfiles, readManifests } from "./manifests.js";
 import { asRecord, asString, basename, findLine, isForeign } from "./text.js";
 import type {
@@ -216,11 +216,61 @@ export async function detectStack(
   const deps = await readManifests(repo, warnings);
   const locked = await readLockfiles(repo, warnings);
   for (const d of deps) d.locked ??= locked.get(lockedKey(d));
+  // A repo never depends on itself: Django's test templates list "Django", monorepo
+  // packages depend on siblings. Those are not frameworks the project is built with.
+  const own = await ownPackageNames(repo);
+  const external = deps.filter((d) => !own.has(`${d.ecosystem}:${normalizeName(d)}`));
   return {
     runtimes: await runtimes(repo),
     packageManagers: await packageManagers(repo),
     dependencies: deps,
-    frameworks: frameworks(deps, repo.files, imports),
+    frameworks: frameworks(external, repo.files, imports),
     warnings,
   };
+}
+
+function normalizeName(d: Pick<Dependency, "ecosystem" | "name">): string {
+  return d.ecosystem === "pypi" ? normalizePypi(d.name) : d.name.toLowerCase();
+}
+
+/** Names this repo publishes, from its own manifests. */
+async function ownPackageNames(repo: RepoView): Promise<Set<string>> {
+  const own = new Set<string>();
+  const add = (ecosystem: Dependency["ecosystem"], name: unknown) => {
+    if (typeof name === "string" && name)
+      own.add(`${ecosystem}:${normalizeName({ ecosystem, name })}`);
+  };
+  for (const path of repo.files) {
+    if (isForeign(path)) continue;
+    const base = basename(path);
+    if (base !== "package.json" && path.includes("/")) continue;
+    const text = [
+      "package.json",
+      "pyproject.toml",
+      "Cargo.toml",
+      "go.mod",
+      "composer.json",
+    ].includes(base)
+      ? await repo.readText(path)
+      : undefined;
+    if (!text) continue;
+    try {
+      if (base === "package.json" || base === "composer.json") {
+        add(
+          base === "package.json" ? "npm" : "composer",
+          (JSON.parse(text) as { name?: unknown }).name,
+        );
+      } else if (base === "pyproject.toml") {
+        const toml = parseToml(text) as Record<string, unknown>;
+        add("pypi", asRecord(toml.project)?.name ?? asRecord(asRecord(toml.tool)?.poetry)?.name);
+      } else if (base === "Cargo.toml") {
+        add("cargo", asRecord((parseToml(text) as Record<string, unknown>).package)?.name);
+      } else if (base === "go.mod") {
+        add("go", /^module\s+(\S+)/m.exec(text)?.[1]);
+      }
+    } catch {
+      // Invalid manifests are reported by the manifest reader.
+    }
+  }
+  return own;
 }

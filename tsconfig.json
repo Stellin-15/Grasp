@@ -1,4 +1,23 @@
 {
   "files": [],
-  "references": [{ "path": "packages/core" }, { "path": "packages/cli" }]
+  "references": [
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/langs"
+    },
+    {
+      "path": "packages/infra"
+    },
+    {
+      "path": "packages/contribute"
+    },
+    {
+      "path": "packages/docs"
+    },
+    {
+      "path": "packages/cli"
+    }
+  ]
 }

@@ -18,7 +18,12 @@
     "dist"
   ],
   "dependencies": {
+    "@grasp/contribute": "workspace:*",
     "@grasp/core": "workspace:*",
-    "commander": "15.0.0"
+    "@grasp/docs": "workspace:*",
+    "@grasp/infra": "workspace:*",
+    "@grasp/langs": "workspace:*",
+    "commander": "15.0.0",
+    "picocolors": "1.1.1"
   }
 }

@@ -107,3 +107,98 @@ describe("grasp CLI", () => {
     expect(await run("order", ...common)).toContain("src/index.ts");
   });
 });
+
+describe("grasp CLI with Claude Code explanations (fake backend)", () => {
+  /** Runs a command with the fake backend and stderr (plan and progress) captured. */
+  async function runFake(...args: string[]): Promise<{ out: string; err: string }> {
+    process.env.GRASP_BACKEND = "fake";
+    let err = "";
+    const spy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation((chunk: string | Uint8Array) => {
+        err += String(chunk);
+        return true;
+      });
+    try {
+      const out = await run(...args);
+      // eslint-disable-next-line no-control-regex
+      return { out, err: err.replace(/\x1b\[[0-9;]*m/g, "") };
+    } finally {
+      spy.mockRestore();
+      delete process.env.GRASP_BACKEND;
+    }
+  }
+
+  it("dry-runs, explains, checks, and explains a single function", async () => {
+    const ws = await mkdtemp(join(tmpdir(), "grasp-cli-ex-"));
+    const common = [fixture, "--no-git", "--workspace", ws, "--format", "md"];
+
+    const dry = await runFake("docs", "build", ...common, "--explain", "--dry-run");
+    expect(dry.err).toMatch(/to generate/);
+    await expect(stat(join(ws, "explanations"))).rejects.toThrow();
+
+    const built = await runFake(
+      "docs",
+      "build",
+      ...common,
+      "--explain",
+      "--yes",
+      "--for",
+      "beginner",
+    );
+    expect(built.err).toMatch(/Explained \d+ new, 0 cached/);
+    const page = await readFile(join(ws, "docs", "files", "src", "auth", "token.ts.md"), "utf8");
+    expect(page).toContain("**How it works**");
+
+    const check = await runFake(
+      "docs",
+      "check",
+      fixture,
+      "--no-git",
+      "--workspace",
+      ws,
+      "--for",
+      "beginner",
+      "--json",
+    );
+    expect((JSON.parse(check.out) as { completeness: number }).completeness).toBe(1);
+
+    const again = await runFake(
+      "docs",
+      "build",
+      ...common,
+      "--explain",
+      "--yes",
+      "--for",
+      "beginner",
+    );
+    expect(again.err).toMatch(/Explained 0 new, \d+ cached/);
+
+    const one = await runFake(
+      "explain",
+      "TokenService.issue",
+      fixture,
+      "--no-git",
+      "--workspace",
+      ws,
+      "--md",
+    );
+    expect(one.out).toContain("## How it works");
+    expect(one.out).toContain("`src/auth/token.ts:11`");
+  });
+
+  it("asks for --yes before large runs when there is no terminal", async () => {
+    const ws = await mkdtemp(join(tmpdir(), "grasp-cli-ex-"));
+    const { err } = await runFake(
+      "docs",
+      "build",
+      fixture,
+      "--no-git",
+      "--workspace",
+      ws,
+      "--explain",
+    );
+    expect(err).toMatch(/Rerun with --yes/);
+    expect(process.exitCode).toBe(1);
+  });
+});

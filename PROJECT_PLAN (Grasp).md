@@ -4,8 +4,7 @@ Free, local-first, open-source CLI + viewer that turns any repository (open sour
 
 > **How to use this file with Claude Code:** put it in the repo root and say: "Read PROJECT_PLAN (Grasp).md fully. Build Phase 0 and Phase 1. Follow section 15 (working agreement). Stop and summarize when Phase 1 is done." Then repeat per phase using the kickoff prompts in section 14.
 
-Repo name: `grasp`
-Fallback names if taken: `codetrail`, `understood`, `clearcode`, `whycode`
+Repo name: `grasp`. npm package: `grasp-cli` (`grasp` is taken on npm); the installed command is `grasp`.
 Tagline: _Clone any repo. Understand every line. Make your first contribution._
 
 ---
@@ -306,7 +305,7 @@ pnpm monorepo, TypeScript strict, ESLint, Prettier, Vitest, changesets, CI on ma
 - Optional AI-repo module (init, doctor, change notes, drift, pr-comment, GitHub Action)
 - MCP server
 - Tier 3 languages
-- Docs site, demo GIF, before/after examples on well-known open-source repos, npm publish
+- Docs site, demo GIF, before/after examples on well-known open-source repos, npm publish as `grasp-cli`
 - Launch posts (Show HN, relevant subreddits, open-source newcomer communities, X)
 
 ## 8. Making people genuinely use it
@@ -353,20 +352,20 @@ pnpm monorepo, TypeScript strict, ESLint, Prettier, Vitest, changesets, CI on ma
 
 ## 12. Tech choices
 
-| Area         | Choice                                                  | Why                                                 |
-| ------------ | ------------------------------------------------------- | --------------------------------------------------- |
-| Language     | TypeScript                                              | One language across CLI, viewer, action             |
-| Monorepo     | pnpm workspaces + Turborepo                             | Fast, simple                                        |
-| CLI          | commander or cac                                        | Small, stable                                       |
-| Parsing      | tree-sitter (WASM)                                      | Multi-language, no native build                     |
-| Git data     | git CLI via child process                               | Available everywhere, no native bindings            |
-| Viewer       | React + Vite + Mermaid                                  | Lightweight local app                               |
-| Tests        | Vitest + fixture repos + fake LLM backend               | Deterministic, conventions drift so fixtures matter |
-| Distribution | npm (`npx grasp`), GitHub Action, later Homebrew/winget | Zero-friction install                               |
+| Area         | Choice                                                      | Why                                                 |
+| ------------ | ----------------------------------------------------------- | --------------------------------------------------- |
+| Language     | TypeScript                                                  | One language across CLI, viewer, action             |
+| Monorepo     | pnpm workspaces + Turborepo                                 | Fast, simple                                        |
+| CLI          | commander or cac                                            | Small, stable                                       |
+| Parsing      | tree-sitter (WASM)                                          | Multi-language, no native build                     |
+| Git data     | git CLI via child process                                   | Available everywhere, no native bindings            |
+| Viewer       | React + Vite + Mermaid                                      | Lightweight local app                               |
+| Tests        | Vitest + fixture repos + fake LLM backend                   | Deterministic, conventions drift so fixtures matter |
+| Distribution | npm (`npx grasp-cli`), GitHub Action, later Homebrew/winget | Zero-friction install                               |
 
 ## 13. Definition of done for v1 (end of Phase 4)
 
-- `npx grasp scan` on any supported repo gives a map, reading order, and static reference in under a minute, without touching the repo
+- `npx grasp-cli scan` on any supported repo gives a map, reading order, and static reference in under a minute, without touching the repo
 - Tech stack and CI/CD pipeline docs are accurate for the repo they describe, with a brief idea of each framework and pipeline
 - `grasp docs build` produces complete, cited L0 to L4 docs for a medium repo, and `grasp docs check` proves completeness and citation validity
 - `grasp explain`, `grasp trace`, `grasp chat`, and the viewer work with the user's existing agent CLI

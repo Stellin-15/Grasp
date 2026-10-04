@@ -85,6 +85,9 @@ const CONFIG_PATTERNS: RegExp[] = [
   /(^|\/)\.gitlab-ci\.yml$/,
   /(^|\/)\.circleci\//,
   /\.(ya?ml|toml|ini|cfg)$/,
+  /(^|\/)requirements[^/]*\.(txt|in)$/,
+  /(^|\/)(Pipfile|Gemfile|Jenkinsfile|Procfile|Justfile|justfile|\.env\.[a-z]+)$/,
+  /(^|\/)\.(python-version|node-version|nvmrc|ruby-version|tool-versions|editorconfig|gitattributes|gitignore|dockerignore)$/,
 ];
 
 /** Order matters: a generated file under tests/ is still generated, not a test. */

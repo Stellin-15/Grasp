@@ -29,6 +29,9 @@ describe("classifyFile", () => {
     ["package.json", "config"],
     [".github/workflows/ci.yml", "config"],
     ["vite.config.ts", "config"],
+    ["requirements-dev.txt", "config"],
+    [".python-version", "config"],
+    [".env.example", "config"],
     ["README.md", "docs"],
     ["data/users.json", "data"],
   ])("%s is %s", (p, expected) => expect(role(p)).toBe(expected));

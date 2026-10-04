@@ -1,0 +1,26 @@
+name: Bug report
+description: Something in Grasp does not work as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Commands and, if possible, a public repo where it happens.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Grasp version
+  - type: input
+    id: env
+    attributes:
+      label: OS and Node version

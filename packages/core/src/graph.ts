@@ -60,13 +60,24 @@ const ENTRY_NAMES = /^(main|index|app|server|cli|manage|wsgi|asgi|run|__main__)\
 /** Entry points visible from code alone. Manifests (package.json bin, pyproject scripts) add more. */
 export function detectEntryPoints(files: FileFact[], graph: ImportGraph): EntryPoint[] {
   const out: EntryPoint[] = [];
+  const paths = new Set(files.map((f) => f.path));
   for (const f of files) {
     if (f.role !== "source") continue;
     const base = f.path.slice(f.path.lastIndexOf("/") + 1);
     const depth = f.path.split("/").length - 1;
+    const dir = f.path.slice(0, Math.max(0, f.path.lastIndexOf("/")));
+    const parent = dir.slice(0, Math.max(0, dir.lastIndexOf("/")));
     if (base === "__main__.py") out.push({ path: f.path, reason: "package __main__ module" });
     else if (f.isScript) out.push({ path: f.path, reason: "runs as a script (main guard)" });
-    else if (ENTRY_NAMES.test(base) && depth <= 2 && (graph.in.get(f.path)?.size ?? 0) === 0) {
+    else if (
+      base === "__init__.py" &&
+      dir &&
+      !paths.has(parent ? `${parent}/__init__.py` : "__init__.py") &&
+      (graph.out.get(f.path)?.size ?? 0) > 0
+    ) {
+      // A top-level package's __init__ is what `import pkg` loads: the library's public API.
+      out.push({ path: f.path, reason: "top-level package: its public API" });
+    } else if (ENTRY_NAMES.test(base) && depth <= 2 && (graph.in.get(f.path)?.size ?? 0) === 0) {
       out.push({
         path: f.path,
         reason: `conventional entry file name, not imported by other files`,

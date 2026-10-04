@@ -1,0 +1,35 @@
+stages:
+  - lint
+  - test
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+default:
+  image: python:3.12
+
+ruff:
+  stage: lint
+  script:
+    - pip install ruff
+    - ruff check .
+
+pytest:
+  stage: test
+  needs: [ruff]
+  script:
+    - pip install -e ".[dev]"
+    - pytest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+deploy:
+  stage: deploy
+  image: alpine
+  script:
+    - ./deploy.sh "$DEPLOY_TOKEN"
+  only:
+    - tags
+  environment: production

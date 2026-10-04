@@ -53,6 +53,11 @@ export function pageRank(graph: ImportGraph, damping = 0.85, iterations = 50): M
 export interface EntryPoint {
   path: string;
   reason: string;
+  /**
+   * Lower reads first. 0 declared in a manifest, 1 package API, 2 __main__,
+   * 3 conventional name, 4 script with a main guard (often a helper).
+   */
+  priority?: number | undefined;
 }
 
 const ENTRY_NAMES = /^(main|index|app|server|cli|manage|wsgi|asgi|run|__main__)\.[a-z]+$/;
@@ -67,8 +72,10 @@ export function detectEntryPoints(files: FileFact[], graph: ImportGraph): EntryP
     const depth = f.path.split("/").length - 1;
     const dir = f.path.slice(0, Math.max(0, f.path.lastIndexOf("/")));
     const parent = dir.slice(0, Math.max(0, dir.lastIndexOf("/")));
-    if (base === "__main__.py") out.push({ path: f.path, reason: "package __main__ module" });
-    else if (f.isScript) out.push({ path: f.path, reason: "runs as a script (main guard)" });
+    if (base === "__main__.py")
+      out.push({ path: f.path, reason: "package __main__ module", priority: 2 });
+    else if (f.isScript)
+      out.push({ path: f.path, reason: "runs as a script (main guard)", priority: 4 });
     else if (
       base === "__init__.py" &&
       dir &&
@@ -76,11 +83,12 @@ export function detectEntryPoints(files: FileFact[], graph: ImportGraph): EntryP
       (graph.out.get(f.path)?.size ?? 0) > 0
     ) {
       // A top-level package's __init__ is what `import pkg` loads: the library's public API.
-      out.push({ path: f.path, reason: "top-level package: its public API" });
+      out.push({ path: f.path, reason: "top-level package: its public API", priority: 1 });
     } else if (ENTRY_NAMES.test(base) && depth <= 2 && (graph.in.get(f.path)?.size ?? 0) === 0) {
       out.push({
         path: f.path,
         reason: `conventional entry file name, not imported by other files`,
+        priority: 3,
       });
     }
   }
@@ -109,8 +117,12 @@ export function readingOrder(
 ): ReadingItem[] {
   const nodeSet = new Set(graph.nodes);
   const entryReasons = new Map<string, string>();
+  const entryPriority = new Map<string, number>();
   for (const e of entryPoints) {
-    if (nodeSet.has(e.path) && !entryReasons.has(e.path)) entryReasons.set(e.path, e.reason);
+    if (!nodeSet.has(e.path)) continue;
+    if (!entryReasons.has(e.path)) entryReasons.set(e.path, e.reason);
+    // Manifest-declared entries (no priority set) rank first.
+    entryPriority.set(e.path, Math.min(entryPriority.get(e.path) ?? 9, e.priority ?? 0));
   }
   const sortedRanks = [...ranks.values()].sort((a, b) => b - a);
   // Top 15% by rank counts as core, but never fewer than files imported by 2+ others.
@@ -136,8 +148,11 @@ export function readingOrder(
   return items.sort(
     (a, b) =>
       stageOrder[a.stage] - stageOrder[b.stage] ||
-      // Entry points that reach more code come first.
-      (a.stage === "entry" ? b.imports - a.imports : 0) ||
+      // Declared entries before helper scripts; then those reaching more code.
+      (a.stage === "entry"
+        ? (entryPriority.get(a.path) ?? 9) - (entryPriority.get(b.path) ?? 9) ||
+          b.imports - a.imports
+        : 0) ||
       b.rank - a.rank ||
       a.path.localeCompare(b.path),
   );

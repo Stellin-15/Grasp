@@ -94,11 +94,17 @@ export function buildReport(input: ReportInput): ScanReport {
   const entries = new Map<string, EntryPoint>();
   for (const e of [...infra.build.entryPoints, ...detectEntryPoints(facts.files, graph)]) {
     const prev = entries.get(e.path);
+    // Manifest entries carry no priority: they are declared, so they read first (0).
+    const priority = "priority" in e && e.priority !== undefined ? e.priority : 0;
     entries.set(
       e.path,
       prev
-        ? { path: e.path, reason: `${prev.reason}; ${e.reason}` }
-        : { path: e.path, reason: e.reason },
+        ? {
+            path: e.path,
+            reason: `${prev.reason}; ${e.reason}`,
+            priority: Math.min(prev.priority ?? 0, priority),
+          }
+        : { path: e.path, reason: e.reason, priority },
     );
   }
 

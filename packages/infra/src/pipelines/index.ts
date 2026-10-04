@@ -26,7 +26,7 @@ const DETECTED: [RegExp, PipelineSystem, string][] = [
 const PURPOSES: [string, RegExp][] = [
   [
     "lint",
-    /\b(lint|eslint|ruff check|flake8|pylint|golangci|clippy|prettier --check|format:check|black --check|stylelint|biome check)\b/i,
+    /\b(lint|eslint|ruff check|flake8|pylint|golangci|clippy|prettier --check|format:check|black --check|stylelint|biome check|pre-commit)\b/i,
   ],
   ["type check", /\b(tsc\b|typecheck|mypy|pyright)/i],
   [

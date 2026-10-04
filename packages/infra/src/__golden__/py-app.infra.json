@@ -476,6 +476,7 @@
       ],
       "secrets": [],
       "purposes": [
+        "lint",
         "type check"
       ],
       "brief": "Runs 3 hooks (ruff, ruff-format and mypy) before each commit.",

@@ -22,6 +22,7 @@ describe("classifyFile", () => {
     ["src/math.test.ts", "test"],
     ["tests/test_billing.py", "test"],
     ["pkg/handler_test.go", "test"],
+    ["test-d/index.ts", "test"],
     ["fixtures/js-app/src/index.ts", "fixture"],
     ["vendor/lib/x.js", "vendored"],
     ["dist/index.js", "generated"],

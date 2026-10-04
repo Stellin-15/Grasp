@@ -50,7 +50,8 @@ export const DEFAULT_IGNORED_DIRS = [
 ];
 
 const TEST_PATTERNS: RegExp[] = [
-  /(^|\/)(tests?|__tests__|spec|specs|e2e|integration_tests)\//,
+  /(^|\/)(tests?|__tests__|spec|specs|e2e|integration_tests|test-d)\//,
+  /\.test-d\.tsx?$/,
   /\.(test|spec|e2e)\.[cm]?[jt]sx?$/,
   /(^|\/)test_[^/]+\.py$/,
   /_test\.(py|go)$/,

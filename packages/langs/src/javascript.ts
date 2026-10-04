@@ -316,6 +316,11 @@ class JsExtractor {
 
   private classBody(body: Node | null, cls: SymbolFact): void {
     if (!body) return;
+    // `private`/`protected` members and `#name` fields are not part of the public API.
+    const isPublic = (m: Node, name: string) =>
+      cls.exported &&
+      !name.startsWith("#") &&
+      !m.namedChildren.some((c) => c.type === "accessibility_modifier" && c.text !== "public");
     for (const m of body.namedChildren) {
       if (
         m.type === "method_definition" ||
@@ -324,14 +329,19 @@ class JsExtractor {
       ) {
         const name = m.childForFieldName("name")?.text;
         if (name)
-          this.add("method", name, m, m, { parent: cls, exported: cls.exported, fn: m, owner: m });
+          this.add("method", name, m, m, {
+            parent: cls,
+            exported: isPublic(m, name),
+            fn: m,
+            owner: m,
+          });
       } else if (m.type === "public_field_definition" || m.type === "field_definition") {
         const nameNode = m.childForFieldName("name") ?? m.childForFieldName("property");
         const value = m.childForFieldName("value");
         if (nameNode && value && FUNCTION_VALUES.has(value.type)) {
           this.add("method", nameNode.text, m, m, {
             parent: cls,
-            exported: cls.exported,
+            exported: isPublic(m, nameNode.text),
             fn: value,
             owner: value,
           });

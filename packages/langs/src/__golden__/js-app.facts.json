@@ -315,7 +315,7 @@
           "type": "string"
         }
       ],
-      "exported": true,
+      "exported": false,
       "parentId": "src/auth/token.ts#TokenService"
     },
     {

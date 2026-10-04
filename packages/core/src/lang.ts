@@ -39,7 +39,8 @@ export interface LanguagePack {
   /** Language names from `detectLanguage` that this pack handles. */
   languages: string[];
   init(): Promise<void>;
-  extract(source: string, path: string, language: string): ExtractResult;
+  /** May be async so packs can parse on worker threads. */
+  extract(source: string, path: string, language: string): ExtractResult | Promise<ExtractResult>;
   createResolver(ctx: ResolveContext): Promise<Resolver>;
 }
 

@@ -225,3 +225,88 @@ export function repoPrompt(name: string, facts: string[]): string {
     "`architecture` explains how the major folders fit together; `flows` traces the main paths through the code, naming files in order.",
   ].join("\n");
 }
+
+export const FRAMEWORK_SCHEMA = {
+  type: "object",
+  properties: {
+    howUsed: {
+      type: "string",
+      description:
+        "How this repository uses the framework: what for, where, and its project-specific patterns. Name files in backticks.",
+    },
+    patterns: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          text: { type: "string" },
+          path: { type: "string", description: "One of the files listed in FACTS." },
+          start: { type: "integer" },
+          end: { type: "integer" },
+        },
+        required: ["text", "path", "start", "end"],
+        additionalProperties: false,
+      },
+      description: "Concrete usage patterns, each citing a file and lines where it shows up.",
+    },
+  },
+  required: ["howUsed", "patterns"],
+  additionalProperties: false,
+};
+
+export const PIPELINE_SCHEMA = {
+  type: "object",
+  properties: {
+    summary: {
+      type: "string",
+      description: "What this pipeline protects or delivers, and when it runs.",
+    },
+    steps: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          line: { type: "integer", description: "The step's line, from STEPS." },
+          why: { type: "string", description: "Why the step is there and what breaks without it." },
+        },
+        required: ["line", "why"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["summary", "steps"],
+  additionalProperties: false,
+};
+
+export function frameworkPrompt(name: string, facts: string[], sources: string[]): string {
+  return [
+    "UNIT: framework",
+    `NAME: ${name}`,
+    "",
+    "FACTS (from static analysis, verified):",
+    ...facts.map((f) => `- ${f}`),
+    "",
+    "SOURCES (each block starts with its file path; line numbers on the left):",
+    ...sources,
+    "",
+    "TASK:",
+    `Explain how this repository uses ${name}, for someone who knows what ${name} is in general but not how this project applies it.`,
+    "Every pattern cites a file from FACTS or SOURCES and lines inside that file.",
+  ].join("\n");
+}
+
+export function pipelinePrompt(path: string, facts: string[], source: string): string {
+  return [
+    "UNIT: pipeline",
+    `NAME: ${path}`,
+    "",
+    "FACTS (parsed from the pipeline file, verified):",
+    ...facts.map((f) => `- ${f}`),
+    "",
+    "SOURCE:",
+    source,
+    "",
+    "TASK:",
+    "Explain what this pipeline is for, then why each listed step exists. Use the step lines from FACTS. Skip steps whose purpose is obvious from their name only if nothing useful can be said.",
+  ].join("\n");
+}

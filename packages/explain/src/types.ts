@@ -56,6 +56,25 @@ export interface RepoExplanation {
   flows: { name: string; description: string }[];
 }
 
+/** A statement tied to lines in a specific file. */
+export interface FileClaim extends Claim {
+  path: string;
+}
+
+/** How this repo uses one framework: the project-specific part the catalog brief cannot know. */
+export interface FrameworkExplanation {
+  howUsed: string;
+  /** Concrete patterns, each pointing at where it shows up. */
+  patterns: FileClaim[];
+}
+
+/** Why a pipeline exists and why each step is there. */
+export interface PipelineExplanation {
+  summary: string;
+  /** Keyed by the step's line in the pipeline file. */
+  steps: { line: number; why: string }[];
+}
+
 export interface ExplanationMeta {
   backend: string;
   model: string;
@@ -74,6 +93,11 @@ export interface ExplanationMeta {
 export interface Stored<T> {
   meta: ExplanationMeta;
   doc: T;
+  /**
+   * The model's unverified answer. Kept in the cache (not in rendered docs) so a
+   * better verifier can re-check old answers without paying for new ones.
+   */
+  raw?: unknown;
 }
 
 /** Everything explained so far for one repo, keyed by symbol id, file path, or folder path. */
@@ -81,9 +105,13 @@ export interface ExplanationSet {
   symbols: Record<string, Stored<SymbolExplanation>>;
   files: Record<string, Stored<FileExplanation>>;
   folders: Record<string, Stored<FolderExplanation>>;
+  /** Keyed by catalog id (e.g. `express`). */
+  frameworks: Record<string, Stored<FrameworkExplanation>>;
+  /** Keyed by pipeline file path. */
+  pipelines: Record<string, Stored<PipelineExplanation>>;
   repo?: Stored<RepoExplanation> | undefined;
 }
 
 export function emptySet(): ExplanationSet {
-  return { symbols: {}, files: {}, folders: {} };
+  return { symbols: {}, files: {}, folders: {}, frameworks: {}, pipelines: {} };
 }

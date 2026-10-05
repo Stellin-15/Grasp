@@ -66,6 +66,27 @@ function defaultResponder(req: CompletionRequest): unknown {
       };
     case "folder":
       return { summary: `${name} is a folder.`, overview: "It holds related files." };
+    case "framework": {
+      const file = /^--- (.+) ---$/m.exec(req.prompt)?.[1] ?? "unknown";
+      return {
+        howUsed: `This repo uses ${name} in \`${file}\`.`,
+        patterns: [
+          { text: "Imported at the top.", path: file, start: 1, end: 1 },
+          // Not a file that uses the framework: the verifier must drop it.
+          { text: "Somewhere else.", path: "nowhere.ts", start: 1, end: 1 },
+        ],
+      };
+    }
+    case "pipeline": {
+      const lines = [...req.prompt.matchAll(/^- Step at line (\d+):/gm)].map((m) => Number(m[1]));
+      return {
+        summary: `${name} keeps the main branch healthy.`,
+        steps: [
+          ...lines.map((line) => ({ line, why: `Step on line ${line} matters.` })),
+          { line: 9999, why: "Not a step." },
+        ],
+      };
+    }
     default:
       return {
         summary: "A test repository.",

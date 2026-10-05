@@ -13,6 +13,10 @@ import {
   filePrompt,
   FOLDER_SCHEMA,
   folderPrompt,
+  FRAMEWORK_SCHEMA,
+  frameworkPrompt,
+  PIPELINE_SCHEMA,
+  pipelinePrompt,
   numbered,
   PROMPT_VERSION,
   REPO_SCHEMA,
@@ -26,6 +30,8 @@ import { emptySet, type Audience, type Depth, type ExplanationSet, type Stored }
 import {
   verifyFile,
   verifyFolder,
+  verifyFramework,
+  verifyPipeline,
   verifyRepo,
   verifySymbol,
   type VerifyContext,
@@ -37,8 +43,23 @@ export interface RepoContext {
   languages: { language: string; share: number }[];
   entryPoints: { path: string; reason: string }[];
   readingOrder: { path: string; stage: string; reason: string }[];
-  frameworks: { name: string; category: string; brief: string; usedIn: number }[];
-  pipelines: { path: string; brief: string }[];
+  frameworks: {
+    id: string;
+    name: string;
+    category: string;
+    brief: string;
+    /** Files that import it, with the first import line. */
+    usedIn: { path: string; line: number }[];
+    configFiles: string[];
+    /** `name version` of each matching dependency. */
+    packages: string[];
+  }[];
+  pipelines: {
+    path: string;
+    name: string;
+    brief: string;
+    steps: { line: number; label: string }[];
+  }[];
 }
 
 export interface ExplainOptions {
@@ -66,7 +87,7 @@ export interface ProgressEvent {
   status: "cached" | "generated" | "failed" | "skipped";
 }
 
-type UnitKind = "symbol" | "file" | "folder" | "repo";
+type UnitKind = "symbol" | "file" | "framework" | "pipeline" | "folder" | "repo";
 
 export interface Unit {
   kind: UnitKind;
@@ -110,6 +131,8 @@ const ABRIDGE_CLASS_LINES = 150;
 const OUTPUT_TOKENS: Record<UnitKind, number> = {
   symbol: 2500,
   file: 1200,
+  framework: 1200,
+  pipeline: 1500,
   folder: 600,
   repo: 2000,
 };
@@ -136,6 +159,8 @@ class Workbench {
   readonly texts = new Map<string, string[]>();
   readonly redactions = new Map<string, number>();
   readonly known = new Set<string>();
+  /** Top-level repo symbols, so `RealClass.madeUp` is caught as fabricated. */
+  readonly repoSymbols = new Set<string>();
 
   constructor(
     readonly facts: RepoFacts,
@@ -146,6 +171,7 @@ class Workbench {
     for (const s of facts.symbols) {
       this.known.add(s.name);
       this.known.add(s.qualifiedName);
+      if (!s.parentId) this.repoSymbols.add(s.name);
       for (const p of s.params) this.known.add(p.name.replace(/^\.\.\./, ""));
     }
     for (const f of facts.files) {
@@ -335,6 +361,43 @@ export async function planExplanations(
   }
 
   if (!restricted) {
+    // Frameworks and pipelines: regenerate when their usage sites, configs, or pipeline file change.
+    const fileHash = (path: string) => wb.idx.files.get(path)?.hash ?? "";
+    for (const fw of ctx.frameworks) {
+      if (!fw.usedIn.length && !fw.configFiles.length) continue;
+      const sourceHash = hash(
+        fw.packages,
+        fw.usedIn.map((u) => [u.path, fileHash(u.path)]),
+        fw.configFiles.map((c) => [c, fileHash(c)]),
+      );
+      units.push({
+        kind: "framework",
+        key: fw.id,
+        inputHash: hash(...base, "framework", fw.id, sourceHash),
+        sourceHash,
+        level: 0,
+        estInputTokens: est(2000 + Math.min(fw.usedIn.length, 4) * 3000),
+        estOutputTokens: OUTPUT_TOKENS.framework,
+        cached: false,
+      });
+    }
+    for (const pl of ctx.pipelines) {
+      if (!pl.steps.length) continue;
+      const sourceHash = fileHash(pl.path) || hash(pl.steps);
+      units.push({
+        kind: "pipeline",
+        key: pl.path,
+        inputHash: hash(...base, "pipeline", pl.path, sourceHash),
+        sourceHash,
+        level: 0,
+        estInputTokens: est(1500 + (wb.idx.files.get(pl.path)?.size ?? 2000)),
+        estOutputTokens: OUTPUT_TOKENS.pipeline,
+        cached: false,
+      });
+    }
+  }
+
+  if (!restricted) {
     // Folders that hold explained files, plus their ancestors; deepest first.
     const folders = new Set<string>();
     for (const f of eligible) {
@@ -401,11 +464,26 @@ export async function planExplanations(
 // Prompt construction, one per unit kind. Each returns the prompt plus the
 // context the verifier checks the answer against.
 
+interface Checked {
+  doc: unknown;
+  dropped: string[];
+}
+
 interface Prepared {
   prompt: string;
   schema: Record<string, unknown>;
-  verify: VerifyContext;
+  /** Context for the standard verifier of this unit kind. */
+  verify?: VerifyContext;
+  /** Custom verification, for kinds whose citations span several files. */
+  check?: (data: unknown) => Checked;
 }
+
+const VERIFIERS: Partial<Record<UnitKind, (data: unknown, ctx: VerifyContext) => Checked>> = {
+  symbol: verifySymbol,
+  file: verifyFile,
+  folder: verifyFolder,
+  repo: verifyRepo,
+};
 
 async function prepareSymbol(wb: Workbench, set: ExplanationSet, id: string): Promise<Prepared> {
   const s = wb.idx.symbols.get(id);
@@ -601,7 +679,9 @@ async function prepareRepo(wb: Workbench, set: ExplanationSet): Promise<Prepared
       .join(", ")}`,
   );
   for (const f of c.frameworks.slice(0, 12))
-    facts.push(`Uses ${f.name} (${f.category}, imported in ${f.usedIn} files)`);
+    facts.push(
+      `Uses ${f.name} (${f.category}, imported in ${f.usedIn.length} files)${set.frameworks[f.id] ? `: ${oneLine(set.frameworks[f.id]?.doc.howUsed ?? "", 300)}` : ""}`,
+    );
   for (const p of c.pipelines.slice(0, 6)) facts.push(`Pipeline \`${p.path}\`: ${p.brief}`);
   for (const [d, e] of Object.entries(set.folders))
     if (!d.includes("/")) facts.push(`Folder \`${d}/\`: ${e.doc.summary}`);
@@ -616,6 +696,75 @@ async function prepareRepo(wb: Workbench, set: ExplanationSet): Promise<Prepared
     prompt: repoPrompt(c.name, facts),
     schema: REPO_SCHEMA,
     verify: { start: 1, end: 1, source: facts.join("\n"), known: wb.known },
+  };
+}
+
+const MAX_FRAMEWORK_SOURCE_LINES = 600;
+
+async function prepareFramework(wb: Workbench, set: ExplanationSet, id: string): Promise<Prepared> {
+  const fw = wb.ctx.frameworks.find((f) => f.id === id);
+  if (!fw) throw new Error(`unknown framework ${id}`);
+  const facts: string[] = [
+    `What it is: ${fw.brief}`,
+    `Category: ${fw.category}`,
+    `Packages: ${fw.packages.join(", ")}`,
+  ];
+  for (const u of fw.usedIn.slice(0, 10)) {
+    const summary = set.files[u.path]?.doc.summary;
+    facts.push(`Imported in \`${u.path}\` at line ${u.line}${summary ? `: ${summary}` : ""}`);
+  }
+  if (fw.usedIn.length > 10) facts.push(`… imported in ${fw.usedIn.length - 10} more files`);
+  if (fw.configFiles.length) {
+    facts.push(`Configured by: ${fw.configFiles.map((c) => `\`${c}\``).join(", ")}`);
+  }
+
+  // Config files first (they show intent), then the files that use it most directly.
+  const files = new Map<string, number>();
+  const sources: string[] = [];
+  let budget = MAX_FRAMEWORK_SOURCE_LINES;
+  const candidates = [...fw.configFiles.slice(0, 2), ...fw.usedIn.slice(0, 4).map((u) => u.path)];
+  for (const path of candidates) {
+    if (budget <= 0 || files.has(path)) continue;
+    const lines = await wb.lines(path);
+    const shown = lines.slice(0, Math.min(lines.length, budget, 200));
+    budget -= shown.length;
+    files.set(path, lines.length);
+    sources.push(`--- ${path} ---`, numbered(shown, 1));
+    if (shown.length < lines.length) sources.push(`… (${lines.length - shown.length} more lines)`);
+  }
+  for (const u of fw.usedIn) {
+    if (!files.has(u.path)) files.set(u.path, wb.idx.files.get(u.path)?.lines ?? u.line);
+  }
+  const source = sources.join("\n");
+  return {
+    prompt: frameworkPrompt(fw.name, facts, sources),
+    schema: FRAMEWORK_SCHEMA,
+    check: (d) =>
+      verifyFramework(d, {
+        start: 1,
+        end: 1,
+        source,
+        known: wb.known,
+        repoSymbols: wb.repoSymbols,
+        files,
+      }),
+  };
+}
+
+async function preparePipeline(wb: Workbench, path: string): Promise<Prepared> {
+  const pl = wb.ctx.pipelines.find((p) => p.path === path);
+  if (!pl) throw new Error(`unknown pipeline ${path}`);
+  const lines = await wb.lines(path);
+  const facts = [
+    `Name: ${pl.name}`,
+    `Parsed summary: ${pl.brief}`,
+    ...pl.steps.map((s) => `Step at line ${s.line}: ${s.label}`),
+  ];
+  const stepLines = new Set(pl.steps.map((s) => s.line));
+  return {
+    prompt: pipelinePrompt(path, facts, numbered(lines.slice(0, 400), 1)),
+    schema: PIPELINE_SCHEMA,
+    check: (d) => verifyPipeline(d, stepLines),
   };
 }
 
@@ -666,7 +815,31 @@ export async function runExplanations(plan: Plan, wb: Workbench): Promise<RunRes
     if (u.kind === "symbol") set.symbols[u.key] = stored as ExplanationSet["symbols"][string];
     else if (u.kind === "file") set.files[u.key] = stored as ExplanationSet["files"][string];
     else if (u.kind === "folder") set.folders[u.key] = stored as ExplanationSet["folders"][string];
+    else if (u.kind === "framework")
+      set.frameworks[u.key] = stored as ExplanationSet["frameworks"][string];
+    else if (u.kind === "pipeline")
+      set.pipelines[u.key] = stored as ExplanationSet["pipelines"][string];
     else set.repo = stored as ExplanationSet["repo"];
+  };
+
+  const prepareUnit = async (u: Unit): Promise<Prepared> =>
+    u.kind === "symbol"
+      ? prepareSymbol(wb, set, u.key)
+      : u.kind === "file"
+        ? prepareFile(wb, set, u.key)
+        : u.kind === "framework"
+          ? prepareFramework(wb, set, u.key)
+          : u.kind === "pipeline"
+            ? preparePipeline(wb, u.key)
+            : u.kind === "folder"
+              ? prepareFolder(wb, set, u.key)
+              : prepareRepo(wb, set);
+
+  const verifyAnswer = (u: Unit, prepared: Prepared, data: unknown): Checked => {
+    if (prepared.check) return prepared.check(data);
+    const verifier = VERIFIERS[u.kind];
+    if (!verifier || !prepared.verify) return { doc: data, dropped: [] };
+    return verifier(data, { ...prepared.verify, repoSymbols: wb.repoSymbols });
   };
 
   const runUnit = async (u: Unit) => {
@@ -675,7 +848,18 @@ export async function runExplanations(plan: Plan, wb: Workbench): Promise<RunRes
     const cachePath = join(opts.cacheDir, `${u.inputHash}.json`);
     if (u.cached) {
       try {
-        put(u, JSON.parse(await readFile(cachePath, "utf8")) as Stored<unknown>);
+        const stored = JSON.parse(await readFile(cachePath, "utf8")) as Stored<unknown>;
+        if (stored.raw !== undefined) {
+          // Re-verify with today's verifier: free, and old answers benefit from fixes.
+          try {
+            const { doc, dropped } = verifyAnswer(u, await prepareUnit(u), stored.raw);
+            stored.doc = doc;
+            stored.meta.dropped = dropped;
+          } catch {
+            // Keep the stored version if the raw answer no longer verifies at all.
+          }
+        }
+        put(u, stored);
         result.cached++;
         report("cached");
         return;
@@ -691,27 +875,15 @@ export async function runExplanations(plan: Plan, wb: Workbench): Promise<RunRes
     }
     attempted++;
     try {
-      const prepared =
-        u.kind === "symbol"
-          ? await prepareSymbol(wb, set, u.key)
-          : u.kind === "file"
-            ? await prepareFile(wb, set, u.key)
-            : u.kind === "folder"
-              ? prepareFolder(wb, set, u.key)
-              : await prepareRepo(wb, set);
+      const prepared = await prepareUnit(u);
       // Redact the whole prompt, not just source: signatures and docstrings in FACTS can hold secrets too.
       const prompt = redactSecrets(prepared.prompt).text;
       const answer = await withRetry(() =>
         opts.backend.complete({ system, prompt, schema: prepared.schema }),
       );
-      const verify = {
-        symbol: verifySymbol,
-        file: verifyFile,
-        folder: verifyFolder,
-        repo: verifyRepo,
-      }[u.kind];
-      const { doc, dropped } = verify(answer.data, prepared.verify);
+      const { doc, dropped } = verifyAnswer(u, prepared, answer.data);
       const stored: Stored<unknown> = {
+        raw: answer.data,
         meta: {
           backend: opts.backend.id,
           model: answer.model,
@@ -755,6 +927,12 @@ export async function runExplanations(plan: Plan, wb: Workbench): Promise<RunRes
     );
   await pool(
     plan.units.filter((u) => u.kind === "file"),
+    concurrency,
+    runUnit,
+  );
+  // After files, so framework prompts can use the summaries of the files that import them.
+  await pool(
+    plan.units.filter((u) => u.kind === "framework" || u.kind === "pipeline"),
     concurrency,
     runUnit,
   );

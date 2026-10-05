@@ -175,7 +175,7 @@ export async function runExplain(
   };
   const { plan, wb } = await planExplanations(a.facts, repoContext(a.report), opts);
   const { usd, basis } = estimateUsd(backend.model, plan.inputTokens, plan.outputTokens);
-  const counts = (["symbol", "file", "folder", "repo"] as const)
+  const counts = (["symbol", "file", "framework", "pipeline", "folder", "repo"] as const)
     .map((k) => [k, plan.units.filter((u) => u.kind === k).length] as const)
     .filter(([, n]) => n > 0)
     .map(([k, n]) => `${n} ${k}${n === 1 ? "" : "s"}`)

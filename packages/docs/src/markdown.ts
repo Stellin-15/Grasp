@@ -28,7 +28,9 @@ export function table(headers: string[], rows: (string | number | undefined)[][]
 
 export function cite(path: string, line?: number, link?: (path: string) => string): string {
   const label = line ? `${path}:${line}` : path;
-  return link ? `[${code(label)}](${link(path)})` : code(label);
+  // No target page (e.g. a config file): plain text beats a dead link.
+  const target = link?.(path);
+  return target ? `[${code(label)}](${target})` : code(label);
 }
 
 const pct = (n: number) => (n > 0 && n < 0.005 ? "<1%" : `${Math.round(n * 100)}%`);

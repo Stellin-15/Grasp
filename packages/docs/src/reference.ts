@@ -115,7 +115,7 @@ export function buildReference(
     };
   const linkOpts = (fromPage: string): RenderOptions => {
     const l = linker(fromPage);
-    return { link: (p) => l(p) || "#" };
+    return { link: l };
   };
   const symbolLink = (fromPage: string, s: SymbolFact): string => {
     const rel = posix.relative(posix.dirname(fromPage), filePage(s.path));
@@ -344,7 +344,7 @@ export function buildReference(
               .map((n) => (n.imported === n.local ? n.local : `${n.imported} as ${n.local}`))
               .join(", "),
             i.resolved
-              ? cite(i.resolved, undefined, (p) => link(p) || "#")
+              ? cite(i.resolved, undefined, link)
               : i.external
                 ? `package ${code(i.external)}`
                 : "unresolved",
@@ -357,20 +357,13 @@ export function buildReference(
       out.push(
         "## Imported by",
         "",
-        ...importers
-          .slice(0, MAX_LISTED)
-          .map((i) => `- ${cite(i.from, i.line, (p) => link(p) || "#")}`),
+        ...importers.slice(0, MAX_LISTED).map((i) => `- ${cite(i.from, i.line, link)}`),
         "",
       );
     }
     const tests = idx.testsFor(f.path);
     if (tests.length)
-      out.push(
-        "## Tests",
-        "",
-        ...tests.map((t) => `- ${cite(t, undefined, (p) => link(p) || "#")}`),
-        "",
-      );
+      out.push("## Tests", "", ...tests.map((t) => `- ${cite(t, undefined, link)}`), "");
 
     if (symbols.length) out.push("## Symbols", "");
     const blame = opts.blame?.get(f.path);
@@ -448,7 +441,7 @@ export function buildReference(
         for (const c of callers.slice(0, MAX_LISTED)) {
           const from = idx.symbols.get(c.from);
           out.push(
-            `- ${cite(c.path, c.line, (p) => link(p) || "#")}${from ? ` in ${symbolLink(page, from)}` : " (top level of file)"}`,
+            `- ${cite(c.path, c.line, link)}${from ? ` in ${symbolLink(page, from)}` : " (top level of file)"}`,
           );
         }
         if (callers.length > MAX_LISTED) out.push(`- … ${callers.length - MAX_LISTED} more`);
@@ -481,10 +474,7 @@ export function buildReference(
       }
       const symTests = idx.testsFor(s.id);
       if (symTests.length)
-        out.push(
-          `**Tested by:** ${symTests.map((t) => cite(t, undefined, (p) => link(p) || "#")).join(", ")}`,
-          "",
-        );
+        out.push(`**Tested by:** ${symTests.map((t) => cite(t, undefined, link)).join(", ")}`, "");
 
       if (blame?.length) {
         const r = summarizeRange(blame, s.range.startLine, s.range.endLine);

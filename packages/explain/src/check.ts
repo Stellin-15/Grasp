@@ -13,6 +13,8 @@ export interface DocsCheck {
   symbols: CoverageCount;
   files: CoverageCount;
   folders: CoverageCount;
+  /** Framework usage and pipeline step explanations. */
+  infra: CoverageCount;
   repo: CoverageCount;
   /** Claims the verifier removed or flagged, across all current explanations. */
   droppedClaims: number;
@@ -39,6 +41,7 @@ export async function checkExplanations(
     symbols: zero(),
     files: zero(),
     folders: zero(),
+    infra: zero(),
     repo: zero(),
     droppedClaims: 0,
     completeness: 0,
@@ -46,17 +49,22 @@ export async function checkExplanations(
     missingUnits: [],
   };
   for (const u of plan.units) {
-    const stored =
-      u.kind === "symbol"
-        ? set.symbols[u.key]
-        : u.kind === "file"
-          ? set.files[u.key]
-          : u.kind === "folder"
-            ? set.folders[u.key]
-            : set.repo;
-    const bucket = { symbol: out.symbols, file: out.files, folder: out.folders, repo: out.repo }[
-      u.kind
-    ];
+    const stored = {
+      symbol: () => set.symbols[u.key],
+      file: () => set.files[u.key],
+      folder: () => set.folders[u.key],
+      framework: () => set.frameworks?.[u.key],
+      pipeline: () => set.pipelines?.[u.key],
+      repo: () => set.repo,
+    }[u.kind]();
+    const bucket = {
+      symbol: out.symbols,
+      file: out.files,
+      folder: out.folders,
+      framework: out.infra,
+      pipeline: out.infra,
+      repo: out.repo,
+    }[u.kind];
     bucket.expected++;
     if (!stored) {
       bucket.missing++;
@@ -70,7 +78,12 @@ export async function checkExplanations(
     }
   }
   const expected = plan.units.length;
-  const current = out.symbols.current + out.files.current + out.folders.current + out.repo.current;
+  const current =
+    out.symbols.current +
+    out.files.current +
+    out.folders.current +
+    out.infra.current +
+    out.repo.current;
   out.completeness = expected ? current / expected : 1;
   return out;
 }

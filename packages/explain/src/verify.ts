@@ -2,6 +2,8 @@ import type {
   Claim,
   FileExplanation,
   FolderExplanation,
+  FrameworkExplanation,
+  PipelineExplanation,
   RepoExplanation,
   SymbolExplanation,
 } from "./types.js";
@@ -14,6 +16,8 @@ export interface VerifyContext {
   source: string;
   /** Names that exist in the repo: symbols, files, folders, packages, parameters. */
   known: ReadonlySet<string>;
+  /** Repo symbol names only (classes, functions), to spot invented members like `Real.madeUp`. */
+  repoSymbols?: ReadonlySet<string> | undefined;
   paramNames?: readonly string[] | undefined;
 }
 
@@ -22,21 +26,71 @@ export class MalformedAnswer extends Error {}
 const IDENT = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*(?:\(\))?$/;
 
 /**
- * Identifiers in backticks must exist: in the source the model was shown, or
- * among known repo names. Anything else is likely invented.
+ * Language builtins, keywords, and standard globals. Explanations rightly
+ * mention these (`TypeError`, `str`, `Promise`) even when the source does not.
+ * Measured: without this list, about 90% of rejected claims were correct.
  */
+const BUILTINS = new Set(
+  // Python
+  (
+    "str bytes int float bool list dict set tuple frozenset object type None True False len isinstance " +
+    "issubclass getattr setattr hasattr delattr callable iter next range enumerate zip map filter sorted " +
+    "reversed min max sum any all abs round print open repr hash id super property staticmethod " +
+    "classmethod NotImplemented Ellipsis memoryview bytearray complex divmod format vars dir globals " +
+    "locals self cls args kwargs Exception BaseException TypeError ValueError KeyError IndexError " +
+    "AttributeError RuntimeError NotImplementedError StopIteration StopAsyncIteration OSError IOError " +
+    "FileNotFoundError PermissionError TimeoutError ImportError ModuleNotFoundError NameError " +
+    "ZeroDivisionError OverflowError ArithmeticError AssertionError UnicodeDecodeError UnicodeEncodeError " +
+    "UnicodeError LookupError RecursionError MemoryError KeyboardInterrupt SystemExit GeneratorExit " +
+    "Warning DeprecationWarning UserWarning return yield async await if else elif for while with try " +
+    "except finally raise lambda import from class def del pass in is not and or global nonlocal assert " +
+    // JavaScript / TypeScript
+    "undefined null true false NaN Infinity Object Array String Number Boolean Symbol BigInt Promise Map " +
+    "Set WeakMap WeakSet Date RegExp JSON Math Error RangeError SyntaxError ReferenceError console " +
+    "process Buffer globalThis window document fetch Response Request URL URLSearchParams setTimeout " +
+    "clearTimeout setInterval clearInterval queueMicrotask structuredClone Record Partial Pick Omit " +
+    "Readonly Required ReturnType Awaited unknown any never void string number boolean bigint this new " +
+    "throw catch typeof instanceof keyof const let var function export default length prototype " +
+    "constructor then"
+  ).split(" "),
+);
+
+function isAllowed(bare: string, ctx: VerifyContext): boolean {
+  const parts = bare.split(".");
+  const head = parts[0] ?? "";
+  const last = parts[parts.length - 1] ?? "";
+  if (/^__\w+__$/.test(last) || BUILTINS.has(bare) || BUILTINS.has(last)) return true;
+  if (ctx.known.has(bare) || ctx.known.has(last)) return true;
+  if (ctx.source.includes(bare) || ctx.source.includes(last)) return true;
+  // Members of builtins or imported packages (`base64.urlsafe_b64decode`) are real outside knowledge.
+  if (
+    parts.length > 1 &&
+    (BUILTINS.has(head) || (ctx.known.has(head) && !ctx.repoSymbols?.has(head)))
+  )
+    return true;
+  return false;
+}
+
+/** Identifiers in backticks that are neither in the code, the repo, nor the language. */
 function unknownIdentifiers(text: string, ctx: VerifyContext): string[] {
   const out: string[] = [];
   for (const m of text.matchAll(/`([^`\n]+)`/g)) {
     const token = (m[1] ?? "").trim();
     if (!IDENT.test(token)) continue;
-    const bare = token.replace(/\(\)$/, "");
-    const last = bare.slice(bare.lastIndexOf(".") + 1);
-    if (ctx.known.has(bare) || ctx.known.has(last)) continue;
-    if (ctx.source.includes(bare) || ctx.source.includes(last)) continue;
-    out.push(token);
+    if (!isAllowed(token.replace(/\(\)$/, ""), ctx)) out.push(token);
   }
   return out;
+}
+
+/**
+ * The clearest sign of fabrication: a member of a real repo class or module
+ * that does not exist (`Signer.made_up`). Other unknown names are flagged only.
+ */
+function fabricated(unknown: string[], ctx: VerifyContext): string[] {
+  return unknown.filter((u) => {
+    const parts = u.replace(/\(\)$/, "").split(".");
+    return parts.length > 1 && !!ctx.repoSymbols?.has(parts[0] ?? "");
+  });
 }
 
 function asString(v: unknown, field: string): string {
@@ -69,11 +123,17 @@ function checkClaims(
       return false;
     }
     const unknown = unknownIdentifiers(c.text, ctx);
-    if (unknown.length) {
+    const invented = fabricated(unknown, ctx);
+    if (invented.length) {
       dropped.push(
-        `${field}: "${c.text.slice(0, 80)}" mentions ${unknown.map((u) => `\`${u}\``).join(", ")}, not found in the code`,
+        `${field}: "${c.text.slice(0, 80)}" refers to ${invented.map((u) => `\`${u}\``).join(", ")}, which does not exist in the repo`,
       );
       return false;
+    }
+    if (unknown.length) {
+      dropped.push(
+        `${field}: "${c.text.slice(0, 80)}" mentions ${unknown.map((u) => `\`${u}\``).join(", ")}, not found in the code (kept, flagged)`,
+      );
     }
     return true;
   });
@@ -169,4 +229,84 @@ export function verifyRepo(
   };
   if (!doc.summary) throw new MalformedAnswer("empty summary");
   return { doc, dropped };
+}
+
+export interface FrameworkVerifyContext extends VerifyContext {
+  /** Files the framework explanation may cite, with their line counts. */
+  files: ReadonlyMap<string, number>;
+}
+
+export function verifyFramework(
+  data: unknown,
+  ctx: FrameworkVerifyContext,
+): { doc: FrameworkExplanation; dropped: string[] } {
+  const r = (data ?? {}) as Record<string, unknown>;
+  const dropped: string[] = [];
+  if (!Array.isArray(r.patterns)) throw new MalformedAnswer("`patterns` is not an array");
+  const patterns = (r.patterns as Record<string, unknown>[]).flatMap((p, i) => {
+    const path = String(p?.path ?? "");
+    const start = Number(p?.start);
+    const end = Number(p?.end);
+    const text = String(p?.text ?? "").trim();
+    const lines = ctx.files.get(path);
+    if (lines === undefined) {
+      dropped.push(
+        `patterns[${i}]: cites \`${path}\`, which is not a file that uses this framework`,
+      );
+      return [];
+    }
+    if (
+      !Number.isInteger(start) ||
+      !Number.isInteger(end) ||
+      start < 1 ||
+      start > end ||
+      end > lines
+    ) {
+      dropped.push(
+        `patterns[${i}]: cites ${path}:${start}-${end}, outside the file's ${lines} lines`,
+      );
+      return [];
+    }
+    const unknown = unknownIdentifiers(text, ctx);
+    const invented = fabricated(unknown, ctx);
+    if (invented.length) {
+      dropped.push(
+        `patterns[${i}]: refers to ${invented.map((u) => `\`${u}\``).join(", ")}, which does not exist in the repo`,
+      );
+      return [];
+    }
+    if (unknown.length) {
+      dropped.push(
+        `patterns[${i}]: mentions ${unknown.map((u) => `\`${u}\``).join(", ")}, not found in the code (kept, flagged)`,
+      );
+    }
+    return [{ text, path, start, end }];
+  });
+  const doc: FrameworkExplanation = {
+    howUsed: flagProse(asString(r.howUsed, "howUsed"), "howUsed", ctx, dropped),
+    patterns,
+  };
+  if (!doc.howUsed) throw new MalformedAnswer("empty howUsed");
+  return { doc, dropped };
+}
+
+export function verifyPipeline(
+  data: unknown,
+  stepLines: ReadonlySet<number>,
+): { doc: PipelineExplanation; dropped: string[] } {
+  const r = (data ?? {}) as Record<string, unknown>;
+  const dropped: string[] = [];
+  if (!Array.isArray(r.steps)) throw new MalformedAnswer("`steps` is not an array");
+  const steps = (r.steps as Record<string, unknown>[]).flatMap((s) => {
+    const line = Number(s?.line);
+    const why = String(s?.why ?? "").trim();
+    if (!stepLines.has(line)) {
+      dropped.push(`steps: line ${line} is not a step in this pipeline`);
+      return [];
+    }
+    return why ? [{ line, why }] : [];
+  });
+  const summary = asString(r.summary, "summary");
+  if (!summary) throw new MalformedAnswer("empty summary");
+  return { doc: { summary, steps }, dropped };
 }

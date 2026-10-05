@@ -202,3 +202,24 @@ describe("grasp CLI with Claude Code explanations (fake backend)", () => {
     expect(process.exitCode).toBe(1);
   });
 });
+
+describe("grasp docs update", () => {
+  it("re-explains only what changed", async () => {
+    process.env.GRASP_BACKEND = "fake";
+    const stderr = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    try {
+      const ws = await mkdtemp(join(tmpdir(), "grasp-cli-up-"));
+      const common = [fixture, "--no-git", "--workspace", ws, "--format", "md", "--yes"];
+      await run("docs", "update", ...common);
+      const check = JSON.parse(
+        await run("docs", "check", fixture, "--no-git", "--workspace", ws, "--json"),
+      ) as {
+        completeness: number;
+      };
+      expect(check.completeness).toBe(1);
+    } finally {
+      stderr.mockRestore();
+      delete process.env.GRASP_BACKEND;
+    }
+  });
+});

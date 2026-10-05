@@ -124,6 +124,20 @@ export function createProgram(): Command {
     .action(run(docsBuildCommand));
   withExplain(docs.commands.find((c) => c.name() === "build") as Command);
 
+  // After `git pull`: same as `build --explain`, which already regenerates only what changed.
+  withExplain(withCommon(docs.command("update").argument("[path]", "repository", ".")))
+    .description(
+      "re-explain only what changed since the last run (unchanged code is never re-sent)",
+    )
+    .addOption(new Option("--format <format>", "md, html, or all").default("all"))
+    .option("--no-history", "skip git blame (faster on very large repos)")
+    .option("--history-limit <n>", "max files to read history for", "2000")
+    .action(
+      run((path: string, opts: Parameters<typeof docsBuildCommand>[1]) =>
+        docsBuildCommand(path, { ...opts, explain: true }),
+      ),
+    );
+
   withExplain(withCommon(docs.command("check").argument("[path]", "repository", ".")))
     .description("completeness and freshness of explanations; no model calls")
     .option("--strict", "exit with code 1 unless everything is explained and current")

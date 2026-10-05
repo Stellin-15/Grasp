@@ -17,8 +17,28 @@ const ctx: RepoContext = {
   languages: [{ language: "TypeScript", share: 1 }],
   entryPoints: [{ path: "src/index.ts", reason: "package entry" }],
   readingOrder: [{ path: "src/index.ts", stage: "entry", reason: "package entry" }],
-  frameworks: [{ name: "Express", category: "Web server framework", brief: "HTTP", usedIn: 1 }],
-  pipelines: [{ path: ".github/workflows/ci.yml", brief: "Runs tests." }],
+  frameworks: [
+    {
+      id: "express",
+      name: "Express",
+      category: "Web server framework",
+      brief: "HTTP",
+      usedIn: [{ path: "src/server.ts", line: 1 }],
+      configFiles: [],
+      packages: ["express ^4.19.2"],
+    },
+  ],
+  pipelines: [
+    {
+      path: ".github/workflows/ci.yml",
+      name: "CI",
+      brief: "Runs tests.",
+      steps: [
+        { line: 22, label: "job lint: pnpm install" },
+        { line: 23, label: "job lint: pnpm lint" },
+      ],
+    },
+  ],
 };
 
 async function setup() {
@@ -63,6 +83,16 @@ describe("explainRepo", () => {
     expect(verify?.doc.gotchas).toEqual([]);
     expect(verify?.meta.dropped[0]).toMatch(/outside/);
     expect(verify?.doc.steps.length).toBe(2);
+
+    // Framework and pipeline explanations keep only citations into files and steps that exist.
+    const express = result.set.frameworks["express"];
+    expect(express?.doc.patterns).toEqual([
+      { text: "Imported at the top.", path: "src/server.ts", start: 1, end: 1 },
+    ]);
+    expect(express?.meta.dropped[0]).toMatch(/not a file that uses this framework/);
+    const ci = result.set.pipelines[".github/workflows/ci.yml"];
+    expect(ci?.doc.steps.map((s) => s.line)).toEqual([22, 23]);
+    expect(ci?.meta.dropped[0]).toMatch(/line 9999 is not a step/);
 
     // Callees are explained before callers, so their summaries reach the caller's prompt.
     const createServerPrompt =
@@ -164,7 +194,7 @@ describe("verifySymbol", () => {
     paramNames: ["a", "b"],
   };
 
-  it("drops invented identifiers and unknown parameters", () => {
+  it("drops fabricated repo references and unknown params, allows builtins, flags the rest", () => {
     const { doc, dropped } = verifySymbol(
       {
         ...base,
@@ -174,15 +204,24 @@ describe("verifySymbol", () => {
         ],
         steps: [
           { text: "Adds `a` and `b`.", start: 10, end: 10 },
-          { text: "Calls `helper` first.", start: 11, end: 11 },
+          { text: "Raises `TypeError` on `str` and uses `base64.b64encode`.", start: 11, end: 11 },
+          { text: "Calls `helper.made_up()`.", start: 12, end: 12 },
           { text: "Then calls `invented()`.", start: 12, end: 12 },
         ],
       },
-      ctx2,
+      { ...ctx2, known: new Set(["helper", "base64"]), repoSymbols: new Set(["helper"]) },
     );
     expect(doc.params.map((p) => p.name)).toEqual(["a"]);
-    expect(doc.steps.map((s) => s.text)).toEqual(["Adds `a` and `b`.", "Calls `helper` first."]);
-    expect(dropped).toHaveLength(2);
+    expect(doc.steps.map((s) => s.text)).toEqual([
+      "Adds `a` and `b`.",
+      "Raises `TypeError` on `str` and uses `base64.b64encode`.",
+      "Then calls `invented()`.",
+    ]);
+    expect(dropped).toEqual([
+      expect.stringMatching(/"c" is not a parameter/),
+      expect.stringMatching(/`helper\.made_up\(\)`, which does not exist/),
+      expect.stringMatching(/`invented\(\)`, not found in the code \(kept, flagged\)/),
+    ]);
   });
 
   it("rejects malformed answers", () => {

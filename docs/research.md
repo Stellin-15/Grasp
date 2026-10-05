@@ -37,4 +37,8 @@ Checked against Claude Code 2.1.288 (`claude --help` plus one live call).
 - `--max-budget-usd` exists for a hard per-call spend cap.
 - Model aliases accepted: `fable`, `opus`, `sonnet`, `haiku`.
 
+- `modelUsage` can list several models: Claude Code also calls a small model (Haiku) for internal housekeeping. Attribute the answer to the model with the most output tokens.
+- First real runs: a complex 100-line method (`TimestampSigner.unsign` in itsdangerous) took about 40 s and cost about $0.14 at API prices, with long, high-quality structured answers. Estimates are now calibrated to about 2,500 output tokens per symbol at Opus rates.
+- Decision (2026-10-04): no direct Anthropic API backend in Phase 2. Users run Claude Code from the terminal or the VS Code extension; both use the same `claude` CLI.
+
 - **Open question for Phase 2:** per-symbol history uses `git blame` (oldest surviving line). `git log -L` is exact but too slow for whole-repo docs; consider it for single-symbol `grasp show`.

@@ -165,12 +165,15 @@ export function buildReference(
   pages.push({
     path: "stack.md",
     title: "Tech stack",
-    markdown: `[Index](index.md)\n\n${renderStack(report, linkOpts("stack.md"))}`,
+    markdown: `[Index](index.md)\n\n${renderStack(report, { ...linkOpts("stack.md"), explanations: opts.explanations })}`,
   });
   pages.push({
     path: "pipelines.md",
     title: "CI/CD pipelines",
-    markdown: `[Index](index.md)\n\n${renderPipelines(report.pipelines, linkOpts("pipelines.md"))}`,
+    markdown: `[Index](index.md)\n\n${renderPipelines(report.pipelines, {
+      ...linkOpts("pipelines.md"),
+      explanations: opts.explanations,
+    })}`,
   });
   pages.push({
     path: "onboard.md",

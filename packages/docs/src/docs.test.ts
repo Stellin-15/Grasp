@@ -143,8 +143,14 @@ describe("js-app docs with explanations", async () => {
       languages: report.languages,
       entryPoints: report.entryPoints,
       readingOrder: report.readingOrder,
-      frameworks: report.stack.frameworks.map((f) => ({ ...f, usedIn: f.usedIn.length })),
-      pipelines: report.pipelines,
+      frameworks: report.stack.frameworks.map((f) => ({
+        ...f,
+        packages: f.packages.map((x) => x.name),
+      })),
+      pipelines: report.pipelines.map((pl) => ({
+        ...pl,
+        steps: pl.jobs.flatMap((j) => j.steps.map((st) => ({ line: st.line, label: j.id }))),
+      })),
     },
     {
       backend: new FakeBackend(),

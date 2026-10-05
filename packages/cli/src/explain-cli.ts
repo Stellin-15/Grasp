@@ -85,12 +85,27 @@ export function repoContext(r: ScanReport): RepoContext {
     entryPoints: r.entryPoints,
     readingOrder: r.readingOrder,
     frameworks: r.stack.frameworks.map((f) => ({
+      id: f.id,
       name: f.name,
       category: f.category,
       brief: f.brief,
-      usedIn: f.usedIn.length,
+      usedIn: f.usedIn,
+      configFiles: f.configFiles,
+      packages: f.packages.map((p) => `${p.name} ${p.locked ?? p.declared ?? ""}`.trim()),
     })),
-    pipelines: r.pipelines.map((p) => ({ path: p.path, brief: p.brief })),
+    pipelines: r.pipelines
+      .filter((p) => p.parsed)
+      .map((p) => ({
+        path: p.path,
+        name: p.name,
+        brief: p.brief,
+        steps: p.jobs.flatMap((j) =>
+          j.steps.map((s) => ({
+            line: s.line,
+            label: `job ${j.id}: ${s.name ?? s.uses ?? s.run?.split("\n")[0] ?? "step"}`,
+          })),
+        ),
+      })),
   };
 }
 
@@ -216,6 +231,9 @@ export async function runExplain(
   Object.assign(set.symbols, result.set.symbols);
   Object.assign(set.files, result.set.files);
   Object.assign(set.folders, result.set.folders);
+  // Saved sets from before frameworks and pipelines were explained lack these maps.
+  set.frameworks = { ...(set.frameworks ?? {}), ...result.set.frameworks };
+  set.pipelines = { ...(set.pipelines ?? {}), ...result.set.pipelines };
   if (result.set.repo) set.repo = result.set.repo;
   const saved: SavedSet = {
     backend: backend.id,
@@ -264,6 +282,7 @@ export async function docsCheckCommand(path: string, o: ExplainCliOptions): Prom
         row("symbols", c.symbols),
         row("files", c.files),
         row("folders", c.folders),
+        row("infra", c.infra),
         row("repo", c.repo),
         `  ${c.droppedClaims} claims were removed or flagged by the citation verifier`,
         c.staleUnits.length
